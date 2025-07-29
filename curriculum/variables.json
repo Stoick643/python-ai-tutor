@@ -1,0 +1,58 @@
+{
+  "topic_id": "variables",
+  "title": "Variables and Assignment",
+  "prerequisites": [],
+  "difficulty": 1,
+  "estimated_time": 20,
+  "levels": {
+    "0": {
+      "type": "concept",
+      "content": "Variables store values for later use. Think of them as labeled boxes that hold data.",
+      "pseudocode": "variable_name = value"
+    },
+    "1": {
+      "type": "simple_example",
+      "content": "Basic variable assignment and usage",
+      "code": "age = 25\nname = \"Alice\"\nprint(f\"Hello {name}, you are {age} years old\")",
+      "output": "Hello Alice, you are 25 years old",
+      "explanation": "We create two variables: 'age' stores a number, 'name' stores text. Then we print both using an f-string."
+    },
+    "2": {
+      "type": "medium_example",
+      "content": "Variable reassignment and calculations",
+      "code": "score = 85\nprint(f\"Original score: {score}\")\n\nscore = score + 10\nprint(f\"Bonus applied: {score}\")\n\nfinal_grade = \"A\" if score >= 90 else \"B\"\nprint(f\"Final grade: {final_grade}\")",
+      "output": "Original score: 85\nBonus applied: 95\nFinal grade: A",
+      "explanation": "Variables can be reassigned and used in calculations. Here we modify the score and determine a grade.",
+      "key_concepts": ["reassignment", "calculations", "conditional expressions"]
+    },
+    "3": {
+      "type": "complex_example",
+      "content": "Multiple assignment and variable swapping",
+      "code": "# Multiple assignment\nx, y, z = 1, 2, 3\nprint(f\"x={x}, y={y}, z={z}\")\n\n# Variable swapping (Pythonic way)\na, b = 10, 20\nprint(f\"Before swap: a={a}, b={b}\")\na, b = b, a\nprint(f\"After swap: a={a}, b={b}\")\n\n# Chain assignment\nfirst = second = third = 0\nprint(f\"All equal: {first}, {second}, {third}\")",
+      "output": "x=1, y=2, z=3\nBefore swap: a=10, b=20\nAfter swap: a=20, b=10\nAll equal: 0, 0, 0",
+      "explanation": "Python supports multiple assignment patterns. You can assign multiple variables at once, swap values elegantly, and chain assignments.",
+      "key_concepts": ["multiple assignment", "tuple unpacking", "variable swapping", "chain assignment"]
+    }
+  },
+  "challenges": [
+    {
+      "prompt": "Create variables for your name, age, and favorite color, then print them in a sentence.",
+      "solution": "name = \"Alice\"\nage = 25\ncolor = \"blue\"\nprint(f\"My name is {name}, I am {age} years old, and my favorite color is {color}.\")",
+      "hints": [
+        "Use quotes for text (strings)",
+        "Numbers don't need quotes",
+        "Use f-strings for easy formatting: f\"text {variable}\""
+      ],
+      "difficulty": 1
+    },
+    {
+      "prompt": "Create two number variables and swap their values without using a temporary variable.",
+      "solution": "x = 10\ny = 20\nx, y = y, x\nprint(f\"x={x}, y={y}\")",
+      "hints": [
+        "Python allows multiple assignment",
+        "Use the pattern: a, b = b, a"
+      ],
+      "difficulty": 2
+    }
+  ]
+}
