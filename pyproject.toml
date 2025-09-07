@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [project.scripts]
-python-tutor = "python_ai_tutor.cli:main"
+python-tutor = "python_ai_tutor.interactive_cli:main"
 
 [tool.black]
 line-length = 88

@@ -164,6 +164,34 @@ class VisualFormatter:
         response = Prompt.ask("> ", console=self.console)
         return response
     
+    def ask_code_input(self, prompt_text: str = "Enter your Python code") -> str:
+        """Get multi-line code input from user."""
+        self.console.print()
+        self.console.print(f"📝 {prompt_text}")
+        self.console.print("   [dim]Type your code below, press Enter after each line.[/dim]")
+        self.console.print("   [dim]When finished, type 'END' on a new line and press Enter.[/dim]")
+        self.console.print()
+        
+        lines = []
+        while True:
+            try:
+                line = input("> ")
+                if line.strip() == "END":
+                    break
+                lines.append(line)
+            except (EOFError, KeyboardInterrupt):
+                break
+        
+        code = "\n".join(lines)
+        
+        # Show the code back to user with syntax highlighting
+        if code.strip():
+            self.console.print()
+            self.console.print("🔍 Your code:", style="dim")
+            self.show_code(code)
+        
+        return code
+    
     def show_feedback(self, feedback: str, feedback_type: str = "neutral"):
         """Display feedback with appropriate styling."""
         if feedback_type == "positive":

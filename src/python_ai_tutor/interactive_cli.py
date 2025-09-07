@@ -29,7 +29,7 @@ def list():
         formatter.console.print("No topics found. Check your curriculum directory.", style="error")
         return
     
-    formatter.console.print("📚 Available Topics", style="bright_blue bold")
+    formatter.console.print("[Books] Available Topics", style="bright_blue bold")
     formatter.console.print("=" * 40, style="dim")
     formatter.console.print()
     

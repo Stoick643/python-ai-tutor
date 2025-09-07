@@ -188,15 +188,17 @@ class InteractiveLearningSession:
         if question.question_type == QuestionType.PREDICTION:
             prediction = self.visual_formatter.ask_question(question.text)
             
-            # Analyze prediction
-            response = self.socratic_engine.analyze_response(prediction, question)
+            # Execute the code to get actual result
+            execution_result = self._show_and_execute_code(level.code)
             
-            # Show encouraging feedback
-            feedback = "Interesting prediction! Let's run it and see what happens."
-            if response.confidence_score > 0.5:
-                feedback = "Good thinking! Let's verify your prediction."
+            # Compare prediction to actual result
+            match_score = self._compare_prediction_to_result(prediction, execution_result)
             
-            self.visual_formatter.show_feedback(feedback, "neutral")
+            # Generate dynamic feedback
+            feedback = self._generate_basic_feedback(prediction, execution_result, match_score)
+            feedback_type = "positive" if match_score >= 0.7 else "neutral"
+            
+            self.visual_formatter.show_feedback(feedback, feedback_type)
         
         self.questions_asked += 1
     
@@ -216,6 +218,74 @@ class InteractiveLearningSession:
             self.visual_formatter.show_execution_status("error")
             error_msg = self.code_executor.format_error_message(result)
             self.visual_formatter.show_error_message(error_msg)
+        return result
+    
+    def _compare_prediction_to_result(self, prediction: str, execution_result) -> float:
+        """Compare user prediction to actual execution result.
+        
+        Returns:
+            Match score from 0.0 to 1.0
+        """
+        if not execution_result.success:
+            return 0.0
+        
+        actual_output = execution_result.stdout.strip()
+        prediction_clean = prediction.strip()
+        
+        # Simple exact match
+        if prediction_clean == actual_output:
+            return 1.0
+        
+        # Partial match (contains the key parts)
+        if actual_output and prediction_clean.lower() in actual_output.lower():
+            return 0.7
+        
+        # Contains some correct elements
+        if actual_output and any(word in actual_output.lower() for word in prediction_clean.lower().split()):
+            return 0.3
+        
+        return 0.0
+    
+    def _generate_basic_feedback(self, prediction: str, execution_result, match_score: float) -> str:
+        """Generate contextual feedback based on prediction accuracy."""
+        if match_score >= 1.0:
+            return "🎉 Exactly right! Great prediction!"
+        elif match_score >= 0.7:
+            return "👍 Very close! You got the main idea."
+        elif match_score >= 0.3:
+            return "🤔 You're on the right track, but let's see what actually happens."
+        else:
+            if execution_result.success:
+                actual = execution_result.stdout.strip()
+                return f"🔍 Not quite. The actual result is: {actual}"
+            else:
+                return "🔍 Interesting prediction! Let's run it and see what happens."
+    
+    def _validate_challenge_solution(self, user_code: str, expected_output: str) -> tuple[bool, str]:
+        """Validate user's challenge solution.
+        
+        Returns:
+            (success, feedback_message)
+        """
+        result = self.code_executor.execute_code(user_code)
+        
+        if not result.success:
+            return False, f"❌ Your code has an error: {result.stderr.strip()}"
+        
+        actual_output = result.stdout.strip()
+        expected_clean = expected_output.strip()
+        
+        if actual_output == expected_clean:
+            return True, "🎉 Perfect! Your solution works correctly!"
+        else:
+            return False, f"❌ Expected: {expected_clean}, but got: {actual_output}"
+    
+    def _get_expected_output_from_solution(self, solution_code: str) -> str:
+        """Get expected output by executing the solution code."""
+        result = self.code_executor.execute_code(solution_code)
+        if result.success:
+            return result.stdout.strip()
+        return ""
     
     def _run_challenges(self, challenges: list[Challenge]):
         """Run interactive coding challenges."""
@@ -241,17 +311,32 @@ class InteractiveLearningSession:
         max_attempts = 3
         
         while attempt_number <= max_attempts:
-            # Get user's code (in a real implementation, this would be interactive)
-            # For now, we'll show the solution and simulate success
-            self.visual_formatter.console.print("📝 [Simulated: In a full interactive version, you would write code here]")
-            self.visual_formatter.console.print()
+            # Get user's code attempt
+            self.visual_formatter.console.print(f"💻 Attempt {attempt_number}/{max_attempts}")
+            user_code = self.visual_formatter.ask_code_input("Enter your Python code solution:")
             
-            # Show solution for demonstration
-            self.visual_formatter.show_solution(challenge.solution)
+            # If user enters 'skip' or empty code, show solution
+            if user_code.lower().strip() in ['skip', '']:
+                self.visual_formatter.show_feedback("Showing solution to learn from:", "neutral")
+                self.visual_formatter.show_solution(challenge.solution)
+                return True
             
-            # Simulate successful completion
-            self.visual_formatter.show_feedback("🎉 Great job! You solved the challenge!", "positive")
-            return True
+            # Validate the solution
+            expected_output = self._get_expected_output_from_solution(challenge.solution)
+            success, feedback = self._validate_challenge_solution(user_code, expected_output)
+            
+            if success:
+                self.visual_formatter.show_feedback(feedback, "positive")
+                return True
+            else:
+                self.visual_formatter.show_feedback(feedback, "error")
+                
+                # Show progressive hints
+                if attempt_number < max_attempts and challenge.hints:
+                    hint_index = min(attempt_number - 1, len(challenge.hints) - 1)
+                    self.visual_formatter.console.print(f"💡 Hint {attempt_number}: {challenge.hints[hint_index]}")
+                
+                attempt_number += 1
         
         # If we got here, user didn't succeed in max attempts
         self.visual_formatter.show_feedback("Don't worry! Here's the solution to learn from:", "neutral")

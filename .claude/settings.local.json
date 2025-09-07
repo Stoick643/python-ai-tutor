@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PYTHONPATH=src python3 -m pytest --tb=short -q)",
+      "Bash(pip install:*)",
+      "Bash(python -m piptools compile:*)",
+      "Bash(python -m piptools sync:*)",
+      "Bash(python:*)",
+      "Bash(pip show:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
