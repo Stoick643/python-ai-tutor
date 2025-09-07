@@ -48,6 +48,7 @@ dmypy.json
 
 # Project specific
 user_data/           # User progress files (privacy)
-curriculum/*.json    # Generated curriculum content (will be created later)
 logs/
 temp/
+.claude/             # Claude local settings
+=*.0                 # Accidental version files

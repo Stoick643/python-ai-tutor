@@ -1,0 +1,54 @@
+{
+  "topic_id": "conditionals",
+  "title": "Conditionals and Boolean Logic", 
+  "description": "Master Python's if/elif/else statements and boolean logic for making decisions in your code",
+  "difficulty": 2,
+  "estimated_time": 20,
+  "prerequisites": ["variables"],
+  "levels": {
+    "0": {
+      "type": "concept",
+      "content": "Conditionals are fundamental programming constructs that allow your program to make decisions. Think of them as the 'if this, then that' logic we use in daily life. In Python, we use if, elif (else if), and else statements to control program flow based on conditions that evaluate to True or False.",
+      "explanation": "Boolean expressions evaluate to either True or False. Common comparison operators include == (equal), != (not equal), < (less than), > (greater than), <= (less than or equal), and >= (greater than or equal). You can combine conditions using logical operators: and, or, and not.",
+      "key_concepts": ["Boolean values (True/False)", "Comparison operators (==, !=, <, >, <=, >=)", "Logical operators (and, or, not)", "if/elif/else syntax", "Code indentation importance"]
+    },
+    "1": {
+      "type": "simple_example",
+      "content": "Let's start with a simple age checker that determines if someone can vote:",
+      "code": "age = 18\n\nif age >= 18:\n    print(\"You can vote!\")\nelse:\n    print(\"You cannot vote yet.\")",
+      "output": "You can vote!",
+      "explanation": "This code checks if the age is 18 or older. Since 18 >= 18 is True, it executes the first print statement. Notice the colon (:) after the condition and the indentation of the code blocks.",
+      "key_concepts": ["Basic if/else structure", "Comparison operator (>=)", "Code indentation"]
+    },
+    "2": {
+      "type": "medium_example",
+      "content": "Now let's create a grade evaluator that uses multiple conditions with elif:",
+      "code": "score = 85\n\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelif score >= 70:\n    grade = \"C\"\nelif score >= 60:\n    grade = \"D\"\nelse:\n    grade = \"F\"\n\nprint(f\"Score: {score}, Grade: {grade}\")",
+      "output": "Score: 85, Grade: B",
+      "explanation": "This demonstrates the elif (else if) statement for handling multiple conditions. Python evaluates conditions from top to bottom, stopping at the first True condition. Since 85 >= 80 is True, it assigns 'B' to grade and skips the remaining conditions.",
+      "key_concepts": ["elif for multiple conditions", "Sequential condition checking", "String assignment in conditionals"]
+    },
+    "3": {
+      "type": "complex_example",
+      "content": "Here's a sophisticated password strength checker using logical operators:",
+      "code": "password = \"MySecret123!\"\n\nhas_upper = any(c.isupper() for c in password)\nhas_lower = any(c.islower() for c in password)\nhas_digit = any(c.isdigit() for c in password)\nhas_special = any(c in \"!@#$%^&*\" for c in password)\nlength_ok = len(password) >= 8\n\nif length_ok and has_upper and has_lower and has_digit and has_special:\n    strength = \"Very Strong\"\nelif length_ok and has_upper and has_lower and (has_digit or has_special):\n    strength = \"Strong\"\nelif length_ok and (has_upper or has_lower):\n    strength = \"Moderate\"\nelse:\n    strength = \"Weak\"\n\nprint(f\"Password strength: {strength}\")\nprint(f\"Length >= 8: {length_ok}\")\nprint(f\"Has uppercase: {has_upper}\")\nprint(f\"Has lowercase: {has_lower}\")\nprint(f\"Has digits: {has_digit}\")\nprint(f\"Has special chars: {has_special}\")",
+      "output": "Password strength: Very Strong\nLength >= 8: True\nHas uppercase: True\nHas lowercase: True\nHas digits: True\nHas special chars: True",
+      "explanation": "This example combines multiple boolean variables using logical operators (and, or). It demonstrates nested conditions and how to break down complex logic into manageable parts. The any() function returns True if any character in the password meets the condition.",
+      "key_concepts": ["Logical operators (and, or)", "Boolean variable combination", "Complex condition evaluation", "String methods (isupper, islower, isdigit)", "Generator expressions with any()"]
+    }
+  },
+  "challenges": [
+    {
+      "prompt": "Write a program that takes a temperature in Celsius and categorizes it:\n- Below 0: 'Freezing'\n- 0 to 15: 'Cold'\n- 16 to 25: 'Mild'\n- 26 to 35: 'Warm'\n- Above 35: 'Hot'\n\nThe temperature should be stored in a variable called 'celsius'.",
+      "solution": "celsius = 22\n\nif celsius < 0:\n    category = \"Freezing\"\nelif celsius <= 15:\n    category = \"Cold\"\nelif celsius <= 25:\n    category = \"Mild\"\nelif celsius <= 35:\n    category = \"Warm\"\nelse:\n    category = \"Hot\"\n\nprint(f\"{celsius}°C is {category}\")",
+      "hints": ["Use if/elif/else structure", "Pay attention to the boundary values", "Remember that elif checks happen in order"],
+      "difficulty": 2
+    },
+    {
+      "prompt": "Create a login system that checks username and password:\n- Username must be at least 3 characters and contain only letters and numbers\n- Password must be at least 6 characters and contain at least one digit\n- Print 'Login successful' if both are valid, otherwise print specific error messages\n\nTest with username = 'user123' and password = 'pass456'",
+      "solution": "username = \"user123\"\npassword = \"pass456\"\n\n# Check username\nvalid_username = len(username) >= 3 and username.isalnum()\n\n# Check password\nvalid_password = len(password) >= 6 and any(c.isdigit() for c in password)\n\nif valid_username and valid_password:\n    print(\"Login successful\")\nelse:\n    if not valid_username:\n        print(\"Invalid username: must be at least 3 characters and alphanumeric\")\n    if not valid_password:\n        print(\"Invalid password: must be at least 6 characters with at least one digit\")",
+      "hints": ["Use the isalnum() method to check for alphanumeric characters", "Use any() with a generator expression to check for digits", "You can have nested if statements for specific error messages"],
+      "difficulty": 3
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "topic_id": "loops",
+  "title": "Loops and Iteration", 
+  "description": "Master for loops, while loops, and iteration patterns to process data efficiently",
+  "difficulty": 3,
+  "estimated_time": 30,
+  "prerequisites": ["conditionals", "lists"],
+  "levels": {
+    "0": {
+      "type": "concept",
+      "content": "Loops allow you to repeat code multiple times without writing it over and over. Python has two main types: 'for' loops iterate over sequences (like lists), while 'while' loops continue as long as a condition is True. Loops are essential for processing collections of data efficiently.",
+      "explanation": "The 'for' loop is ideal when you know what you want to iterate over (lists, ranges, strings). The 'while' loop is perfect when you need to repeat until a condition changes. You can control loop execution with 'break' (exit early) and 'continue' (skip to next iteration).",
+      "key_concepts": ["for loops with sequences", "while loops with conditions", "break and continue statements", "Loop variable scope", "Nested loops"]
+    },
+    "1": {
+      "type": "simple_example",
+      "content": "Let's start with basic for and while loop examples:",
+      "code": "# For loop with a list\nfruits = [\"apple\", \"banana\", \"orange\"]\nprint(\"For loop through list:\")\nfor fruit in fruits:\n    print(f\"I like {fruit}\")\n\nprint(\"\\nFor loop with range:\")\nfor i in range(1, 4):\n    print(f\"Count: {i}\")\n\n# While loop\nprint(\"\\nWhile loop countdown:\")\ncountdown = 3\nwhile countdown > 0:\n    print(f\"{countdown}...\")\n    countdown -= 1\nprint(\"Blast off! 🚀\")",
+      "output": "For loop through list:\nI like apple\nI like banana\nI like orange\n\nFor loop with range:\nCount: 1\nCount: 2\nCount: 3\n\nWhile loop countdown:\n3...\n2...\n1...\nBlast off! 🚀",
+      "explanation": "The for loop iterates through each item in the fruits list. The range(1, 4) creates numbers 1, 2, 3. The while loop continues as long as countdown > 0, decreasing the value each time. Notice how countdown -= 1 is shorthand for countdown = countdown - 1.",
+      "key_concepts": ["for item in list syntax", "range() function", "while condition syntax", "Decrement operator -="]
+    },
+    "2": {
+      "type": "medium_example",
+      "content": "Now let's explore loop control and processing data with enumerate and list comprehensions:",
+      "code": "# Processing exam scores\nscores = [78, 85, 92, 67, 88, 76, 95, 82]\n\nprint(\"📊 Score Analysis:\")\npassing_count = 0\ntotal_points = 0\n\n# Loop with enumerate to get index and value\nfor i, score in enumerate(scores):\n    total_points += score\n    status = \"PASS\" if score >= 70 else \"FAIL\"\n    print(f\"Student {i+1}: {score} points - {status}\")\n    \n    if score >= 70:\n        passing_count += 1\n    \n    # Skip detailed analysis for failing scores\n    if score < 70:\n        continue\n        \n    # Give bonus for excellent scores\n    if score >= 90:\n        print(f\"  🌟 Excellent work!\")\n\naverage = total_points / len(scores)\npass_rate = (passing_count / len(scores)) * 100\n\nprint(f\"\\n📈 Summary:\")\nprint(f\"Average: {average:.1f}\")\nprint(f\"Pass rate: {pass_rate:.1f}%\")\nprint(f\"Passing students: {passing_count}/{len(scores)}\")",
+      "output": "📊 Score Analysis:\nStudent 1: 78 points - PASS\nStudent 2: 85 points - PASS\nStudent 3: 92 points - PASS\n  🌟 Excellent work!\nStudent 4: 67 points - FAIL\nStudent 5: 88 points - PASS\nStudent 6: 76 points - PASS\nStudent 7: 95 points - PASS\n  🌟 Excellent work!\nStudent 8: 82 points - PASS\n\n📈 Summary:\nAverage: 82.9\nPass rate: 87.5%\nPassing students: 7/8",
+      "explanation": "This example uses enumerate() to get both the index and value in one loop. We use continue to skip additional processing for failing scores, but still count them. The += operator accumulates values. Conditional logic inside loops allows for complex data processing.",
+      "key_concepts": ["enumerate(list) for index and value", "continue statement", "Accumulator variables", "Conditional logic in loops"]
+    },
+    "3": {
+      "type": "complex_example",
+      "content": "Here's a sophisticated inventory management system using nested loops and advanced patterns:",
+      "code": "# Store inventory data\ninventory = {\n    \"Electronics\": [(\"Laptop\", 1200, 5), (\"Phone\", 800, 12), (\"Tablet\", 400, 8)],\n    \"Clothing\": [(\"Shirt\", 25, 50), (\"Jeans\", 60, 30), (\"Jacket\", 100, 15)],\n    \"Books\": [(\"Python Guide\", 45, 20), (\"Data Science\", 55, 10), (\"Web Dev\", 40, 25)]\n}\n\nprint(\"🏪 INVENTORY REPORT\")\nprint(\"=\" * 50)\n\ntotal_value = 0\nlow_stock_items = []\nexpensive_items = []\n\n# Nested loops: category -> items\nfor category, items in inventory.items():\n    print(f\"\\n📦 {category.upper()}:\")\n    category_value = 0\n    \n    for item_name, price, quantity in items:\n        item_value = price * quantity\n        category_value += item_value\n        total_value += item_value\n        \n        # Format price and stock level\n        stock_status = \"⚠️ LOW\" if quantity < 15 else \"✅ OK\"\n        \n        print(f\"  {item_name:<15} ${price:>4} x {quantity:>2} = ${item_value:>5} {stock_status}\")\n        \n        # Collect special items\n        if quantity < 15:\n            low_stock_items.append((category, item_name, quantity))\n        if price > 100:\n            expensive_items.append((category, item_name, price))\n    \n    print(f\"  Category Total: ${category_value:,}\")\n\nprint(f\"\\n💰 TOTAL INVENTORY VALUE: ${total_value:,}\")\n\n# Alert reports\nif low_stock_items:\n    print(f\"\\n🚨 LOW STOCK ALERTS ({len(low_stock_items)} items):\")\n    for category, item, qty in low_stock_items:\n        print(f\"  {category}: {item} (only {qty} left)\")\n\nif expensive_items:\n    print(f\"\\n💎 HIGH-VALUE ITEMS ({len(expensive_items)} items):\")\n    for category, item, price in expensive_items:\n        print(f\"  {category}: {item} (${price})\")",
+      "output": "🏪 INVENTORY REPORT\n==================================================\n\n📦 ELECTRONICS:\n  Laptop          $1200 x  5 = $6000 ⚠️ LOW\n  Phone           $ 800 x 12 = $9600 ✅ OK\n  Tablet          $ 400 x  8 = $3200 ⚠️ LOW\n  Category Total: $18,800\n\n📦 CLOTHING:\n  Shirt           $  25 x 50 = $1250 ✅ OK\n  Jeans           $  60 x 30 = $1800 ✅ OK\n  Jacket          $ 100 x 15 = $1500 ✅ OK\n  Category Total: $4,550\n\n📦 BOOKS:\n  Python Guide    $  45 x 20 = $ 900 ✅ OK\n  Data Science    $  55 x 10 = $ 550 ⚠️ LOW\n  Web Dev         $  40 x 25 = $1000 ✅ OK\n  Category Total: $2,450\n\n💰 TOTAL INVENTORY VALUE: $25,800\n\n🚨 LOW STOCK ALERTS (3 items):\n  Electronics: Laptop (only 5 left)\n  Electronics: Tablet (only 8 left)\n  Books: Data Science (only 10 left)\n\n💎 HIGH-VALUE ITEMS (2 items):\n  Electronics: Laptop ($1200)\n  Electronics: Phone ($800)",
+      "explanation": "This complex example demonstrates nested loops, tuple unpacking, string formatting, and data collection patterns. We use nested loops to iterate through categories and items, string formatting with alignment (<, >, ^), and conditional logic to categorize items. The f-string formatting includes number formatting with commas.",
+      "key_concepts": ["Nested loops", "Tuple unpacking in loops", "String formatting and alignment", "Data collection patterns", "Multiple accumulator variables"]
+    }
+  },
+  "challenges": [
+    {
+      "prompt": "Write a program that creates a multiplication table:\n- Ask for a number (store in variable 'num = 7' for testing)\n- Use a for loop with range(1, 11) to create the table\n- Print each line in the format: '7 x 1 = 7', '7 x 2 = 14', etc.\n- After the table, calculate and print the sum of all results",
+      "solution": "num = 7\ntotal_sum = 0\n\nprint(f\"Multiplication table for {num}:\")\nprint(\"-\" * 20)\n\nfor i in range(1, 11):\n    result = num * i\n    total_sum += result\n    print(f\"{num} x {i:2} = {result:2}\")\n\nprint(\"-\" * 20)\nprint(f\"Sum of all results: {total_sum}\")",
+      "hints": ["Use range(1, 11) for numbers 1 through 10", "Keep a running total of all multiplication results", "Use f-string formatting for neat alignment", "The :2 format specifier right-aligns in 2 characters"],
+      "difficulty": 2
+    },
+    {
+      "prompt": "Create a number guessing game:\n- Set target_number = 42\n- Use a while loop to keep asking for guesses\n- For each guess, provide feedback: 'Too high!', 'Too low!', or 'Correct!'\n- Count the number of attempts\n- Use break to exit when the guess is correct\n- Print congratulations with the number of attempts\n\n(Simulate guesses with a list: guesses = [50, 30, 45, 40, 42])",
+      "solution": "target_number = 42\nguesses = [50, 30, 45, 40, 42]  # Simulated user input\nguess_count = 0\nGuess_index = 0\n\nprint(\"🎯 Number Guessing Game! I'm thinking of a number...\")\n\nwhile True:\n    # Simulate getting a guess\n    if guess_index < len(guesses):\n        current_guess = guesses[guess_index]\n        guess_index += 1\n        guess_count += 1\n        \n        print(f\"\\nAttempt {guess_count}: You guessed {current_guess}\")\n        \n        if current_guess == target_number:\n            print(\"🎉 Correct! You got it!\")\n            break\n        elif current_guess > target_number:\n            print(\"📉 Too high! Try a lower number.\")\n        else:\n            print(\"📈 Too low! Try a higher number.\")\n    else:\n        break\n\nprint(f\"\\n🏆 Congratulations! You found the number in {guess_count} attempts!\")",
+      "hints": ["Use while True: for an infinite loop", "Use break to exit when guess is correct", "Count attempts with a counter variable", "Use elif for multiple conditions", "Don't forget to increment your guess counter"],
+      "difficulty": 3
+    }
+  ]
+}

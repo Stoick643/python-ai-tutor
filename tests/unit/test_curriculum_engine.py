@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pytest
 
 from python_ai_tutor.curriculum_engine import ContentLoader, CurriculumEngine
-from python_ai_tutor.models import ContentLevel, ContentType, Topic, UserProgress
+from python_ai_tutor.models import ContentLevel, ContentType, Topic, TopicProgress, UserProgress
 
 
 class TestContentLoader:
@@ -103,14 +103,14 @@ class TestCurriculumEngine:
     """Test the CurriculumEngine class using TDD."""
 
     def test_initialization(self):
-        """Should initialize with content and progress paths."""
+        """Should initialize with content path and progress database."""
         engine = CurriculumEngine(
-            content_path="curriculum/", progress_path="user_data/"
+            content_path="curriculum/", progress_db_path="user_data/test.db"
         )
 
         assert engine.content_path == Path("curriculum/")
-        assert engine.progress_path == Path("user_data/")
         assert engine.content_loader is not None
+        assert engine.progress_persistence is not None
 
     def test_load_topic_success(self):
         """Should load a topic successfully."""
@@ -278,3 +278,66 @@ class TestCurriculumEngine:
         assert session["user_id"] == "test_user"
         assert "start_time" in session
         assert session["interactions"] == []
+
+    def test_load_user_progress_integration(self):
+        """Should load user progress using SQLite backend."""
+        # Arrange: Create engine with temporary database
+        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_db:
+            temp_db_path = temp_db.name
+        
+        engine = CurriculumEngine(progress_db_path=temp_db_path)
+        
+        # Act: Load progress for new user
+        progress = engine.load_user_progress("new_user")
+        
+        # Assert: Should return empty progress
+        assert progress.user_id == "new_user"
+        assert progress.topics == {}
+        
+        # Cleanup
+        Path(temp_db_path).unlink(missing_ok=True)
+
+    def test_update_topic_progress_integration(self):
+        """Should update topic progress and persist to database."""
+        # Arrange: Create engine with temporary database
+        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_db:
+            temp_db_path = temp_db.name
+        
+        engine = CurriculumEngine(progress_db_path=temp_db_path)
+        
+        # Act: Update topic progress
+        engine.update_topic_progress("test_user", "variables", 2)
+        
+        # Load and verify
+        progress = engine.load_user_progress("test_user")
+        
+        # Assert: Progress should be persisted
+        assert "variables" in progress.topics
+        topic_progress = progress.topics["variables"]
+        assert topic_progress.current_level == 2
+        assert 2 in topic_progress.completed_levels
+        assert topic_progress.last_accessed is not None
+        
+        # Cleanup
+        Path(temp_db_path).unlink(missing_ok=True)
+
+    def test_get_user_stats_integration(self):
+        """Should get user statistics from database."""
+        # Arrange: Create engine and add some progress
+        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_db:
+            temp_db_path = temp_db.name
+        
+        engine = CurriculumEngine(progress_db_path=temp_db_path)
+        engine.update_topic_progress("test_user", "variables", 3)
+        engine.update_topic_progress("test_user", "functions", 1)
+        
+        # Act: Get stats
+        stats = engine.get_user_stats("test_user")
+        
+        # Assert: Stats should be calculated
+        assert stats["total_topics"] == 2
+        assert stats["completed_topics"] == 1  # Only variables completed (level 3)
+        assert isinstance(stats["completion_rate"], float)
+        
+        # Cleanup
+        Path(temp_db_path).unlink(missing_ok=True)

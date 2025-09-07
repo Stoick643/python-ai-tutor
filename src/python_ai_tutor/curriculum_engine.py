@@ -5,7 +5,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from .models import Topic, UserProgress
+from .models import Topic, TopicProgress, UserProgress
+from .progress_persistence import ProgressPersistence
 
 
 class ContentLoader:
@@ -39,12 +40,12 @@ class CurriculumEngine:
     """Core engine for managing curriculum and learning sessions."""
 
     def __init__(
-        self, content_path: str = "curriculum/", progress_path: str = "user_data/"
+        self, content_path: str = "curriculum/", progress_db_path: str = "user_data/progress.db"
     ):
         """Initialize the curriculum engine."""
         self.content_path = Path(content_path)
-        self.progress_path = Path(progress_path)
         self.content_loader = ContentLoader(self.content_path)
+        self.progress_persistence = ProgressPersistence(progress_db_path)
 
     def load_topic(self, topic_id: str) -> Topic:
         """Load a specific topic."""
@@ -110,3 +111,35 @@ class CurriculumEngine:
         }
 
         return session
+
+    def load_user_progress(self, user_id: str) -> UserProgress:
+        """Load user progress from database."""
+        return self.progress_persistence.load_user_progress(user_id)
+
+    def save_user_progress(self, user_progress: UserProgress) -> None:
+        """Save user progress to database."""
+        self.progress_persistence.save_user_progress(user_progress)
+
+    def update_topic_progress(self, user_id: str, topic_id: str, current_level: int) -> None:
+        """Update progress for a specific topic."""
+        user_progress = self.load_user_progress(user_id)
+        
+        if topic_id not in user_progress.topics:
+            user_progress.topics[topic_id] = TopicProgress(topic_id=topic_id)
+        
+        topic_progress = user_progress.topics[topic_id]
+        topic_progress.current_level = current_level
+        
+        # Add level to completed levels if not already there
+        if current_level not in topic_progress.completed_levels:
+            topic_progress.completed_levels.append(current_level)
+        
+        self.progress_persistence.update_topic_progress(user_id, topic_id, topic_progress)
+
+    def get_user_stats(self, user_id: str) -> dict[str, Any]:
+        """Get summary statistics for a user."""
+        return self.progress_persistence.get_user_stats(user_id)
+
+    def reset_user_progress(self, user_id: str) -> None:
+        """Reset all progress for a user."""
+        self.progress_persistence.reset_user_progress(user_id)

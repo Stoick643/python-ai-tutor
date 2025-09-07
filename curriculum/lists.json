@@ -1,0 +1,54 @@
+{
+  "topic_id": "lists",
+  "title": "Lists and Sequences", 
+  "description": "Learn to work with Python lists for storing and manipulating collections of data",
+  "difficulty": 2,
+  "estimated_time": 25,
+  "prerequisites": ["variables"],
+  "levels": {
+    "0": {
+      "type": "concept",
+      "content": "Lists are ordered collections that can store multiple values of any type. Think of them as containers that hold a sequence of items, where each item has a position (index) starting from 0. Lists are mutable, meaning you can change their contents after creation.",
+      "explanation": "Lists use square brackets [] and items are separated by commas. You can access individual elements using their index (position), slice sections, and modify the list with methods like append(), remove(), and pop().",
+      "key_concepts": ["Square bracket notation []", "Zero-based indexing", "Mutability", "Common list methods", "Slicing syntax"]
+    },
+    "1": {
+      "type": "simple_example",
+      "content": "Let's create and explore a basic shopping list:",
+      "code": "shopping_list = [\"apples\", \"bread\", \"milk\", \"eggs\"]\n\nprint(f\"Shopping list: {shopping_list}\")\nprint(f\"First item: {shopping_list[0]}\")\nprint(f\"Last item: {shopping_list[-1]}\")\nprint(f\"List length: {len(shopping_list)}\")\n\n# Add an item\nshopping_list.append(\"cheese\")\nprint(f\"After adding cheese: {shopping_list}\")",
+      "output": "Shopping list: ['apples', 'bread', 'milk', 'eggs']\nFirst item: apples\nLast item: eggs\nList length: 4\nAfter adding cheese: ['apples', 'bread', 'milk', 'eggs', 'cheese']",
+      "explanation": "We create a list with 4 items. Index 0 gets the first item, -1 gets the last item. The len() function returns the number of items. The append() method adds a new item to the end.",
+      "key_concepts": ["List creation", "Positive and negative indexing", "len() function", "append() method"]
+    },
+    "2": {
+      "type": "medium_example",
+      "content": "Now let's explore list slicing and common operations with student scores:",
+      "code": "scores = [85, 92, 78, 96, 88, 74, 91]\n\nprint(f\"All scores: {scores}\")\nprint(f\"First 3 scores: {scores[:3]}\")\nprint(f\"Last 2 scores: {scores[-2:]}\")\nprint(f\"Middle scores: {scores[2:5]}\")\nprint(f\"Every other score: {scores[::2]}\")\n\n# Statistics\nprint(f\"\\nHighest score: {max(scores)}\")\nprint(f\"Lowest score: {min(scores)}\")\nprint(f\"Average score: {sum(scores) / len(scores):.1f}\")\n\n# Modify the list\nscores[1] = 95  # Change second score\nscores.remove(74)  # Remove the lowest score\nprint(f\"\\nModified scores: {scores}\")",
+      "output": "All scores: [85, 92, 78, 96, 88, 74, 91]\nFirst 3 scores: [85, 92, 78]\nLast 2 scores: [74, 91]\nMiddle scores: [78, 96, 88]\nEvery other score: [85, 78, 88, 91]\n\nHighest score: 96\nLowest score: 74\nAverage score: 86.3\n\nModified scores: [85, 95, 78, 96, 88, 91]",
+      "explanation": "Slicing uses the syntax [start:end:step]. Empty values mean 'from beginning', 'to end', or 'step by 1'. We can use built-in functions like max(), min(), and sum() on lists. Lists can be modified by assignment or methods like remove().",
+      "key_concepts": ["List slicing [start:end:step]", "Built-in functions (max, min, sum)", "Item assignment", "remove() method"]
+    },
+    "3": {
+      "type": "complex_example",
+      "content": "Here's a comprehensive example managing a playlist with nested operations:",
+      "code": "# Create playlist with song info (nested lists)\nplaylist = [\n    [\"Bohemian Rhapsody\", \"Queen\", 355],\n    [\"Hotel California\", \"Eagles\", 391],\n    [\"Stairway to Heaven\", \"Led Zeppelin\", 482],\n    [\"Imagine\", \"John Lennon\", 183]\n]\n\n# Display formatted playlist\nprint(\"🎵 My Playlist:\")\nfor i, song in enumerate(playlist, 1):\n    title, artist, duration = song\n    mins, secs = duration // 60, duration % 60\n    print(f\"{i}. {title} by {artist} ({mins}:{secs:02d})\")\n\n# Find songs longer than 5 minutes\nlong_songs = [song for song in playlist if song[2] > 300]\nprint(f\"\\n📊 Songs longer than 5 minutes: {len(long_songs)}\")\n\n# Sort by duration and get shortest/longest\nsorted_playlist = sorted(playlist, key=lambda x: x[2])\nshortest = sorted_playlist[0]\nlongest = sorted_playlist[-1]\n\nprint(f\"⏱️  Shortest: {shortest[0]} ({shortest[2]}s)\")\nprint(f\"⏱️  Longest: {longest[0]} ({longest[2]}s)\")\n\n# Calculate total playlist time\ntotal_seconds = sum(song[2] for song in playlist)\ntotal_mins = total_seconds // 60\nprint(f\"🕐 Total playlist time: {total_mins} minutes\")",
+      "output": "🎵 My Playlist:\n1. Bohemian Rhapsody by Queen (5:55)\n2. Hotel California by Eagles (6:31)\n3. Stairway to Heaven by Led Zeppelin (8:02)\n4. Imagine by John Lennon (3:03)\n\n📊 Songs longer than 5 minutes: 3\n⏱️  Shortest: Imagine (183s)\n⏱️  Longest: Stairway to Heaven (482s)\n🕐 Total playlist time: 23 minutes",
+      "explanation": "This example demonstrates nested lists, list comprehensions, and advanced operations. We use enumerate() for numbering, lambda functions for sorting, and generator expressions with sum(). The // operator does integer division, % gets the remainder.",
+      "key_concepts": ["Nested lists", "List comprehensions", "enumerate() function", "sorted() with key", "Lambda functions", "Generator expressions"]
+    }
+  },
+  "challenges": [
+    {
+      "prompt": "Create a program that manages a todo list:\n- Start with todos = ['buy milk', 'walk dog', 'finish homework']\n- Add 'call mom' to the end\n- Remove 'walk dog' from the list\n- Insert 'check email' at the beginning (index 0)\n- Print the final todo list with numbers\n\nFormat the output like: '1. check email', '2. buy milk', etc.",
+      "solution": "todos = ['buy milk', 'walk dog', 'finish homework']\n\n# Add 'call mom' to the end\ntodos.append('call mom')\n\n# Remove 'walk dog'\ntodos.remove('walk dog')\n\n# Insert 'check email' at the beginning\ntodos.insert(0, 'check email')\n\n# Print with numbers\nprint(\"📋 Todo List:\")\nfor i, task in enumerate(todos, 1):\n    print(f\"{i}. {task}\")",
+      "hints": ["Use append() to add to the end", "Use remove() to delete by value", "Use insert(0, item) to add at the beginning", "Use enumerate(list, 1) to number from 1"],
+      "difficulty": 2
+    },
+    {
+      "prompt": "Write a program that finds the top 3 highest scores from this list:\nscores = [87, 92, 78, 96, 85, 91, 73, 89, 94, 82]\n\nYour program should:\n- Sort the scores in descending order\n- Extract the top 3 scores\n- Calculate and print the average of these top 3 scores\n- Find the positions (original indices) of these top 3 scores",
+      "solution": "scores = [87, 92, 78, 96, 85, 91, 73, 89, 94, 82]\n\n# Sort in descending order\nsorted_scores = sorted(scores, reverse=True)\ntop_3 = sorted_scores[:3]\n\nprint(f\"Top 3 scores: {top_3}\")\n\n# Calculate average\naverage = sum(top_3) / len(top_3)\nprint(f\"Average of top 3: {average:.1f}\")\n\n# Find original positions\noriginal_positions = []\nfor score in top_3:\n    pos = scores.index(score)\n    original_positions.append(pos)\n    print(f\"Score {score} was at position {pos}\")\n\nprint(f\"Original indices: {original_positions}\")",
+      "hints": ["Use sorted(list, reverse=True) for descending order", "Use list slicing [:3] to get first 3 items", "Use sum() and len() for average calculation", "Use list.index() to find position of a value"],
+      "difficulty": 3
+    }
+  ]
+}

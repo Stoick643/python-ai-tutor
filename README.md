@@ -25,14 +25,17 @@ source .venv/bin/activate
 pip install pip-tools
 pip-sync requirements/dev.txt
 
-# Install pre-commit hooks
-pre-commit install
-
 # Run tests
-pytest
+PYTHONPATH=src pytest
 
-# Start learning
-python-tutor learn variables
+# Start learning (Phase 1 - basic CLI working!)
+PYTHONPATH=src python3 -m python_ai_tutor.cli learn variables
+
+# Check your progress
+PYTHONPATH=src python3 -m python_ai_tutor.cli status
+
+# List available topics
+PYTHONPATH=src python3 -m python_ai_tutor.cli list
 ```
 
 ## Architecture
@@ -57,8 +60,8 @@ python-tutor learn variables
 
 ### Development Tools
 - **Testing**: pytest, pytest-cov, pytest-mock
-- **Code Quality**: black, ruff, mypy, pre-commit
-- **Documentation**: mkdocs, mkdocs-material
+- **Code Quality**: black, ruff, mypy
+- **Dependency Management**: pip-tools for reproducible builds
 
 ### Project Structure
 ```
@@ -73,12 +76,14 @@ python-ai-tutor/
 
 ## Roadmap
 
-### Phase 1: Foundation (Weeks 1-2) ✅
+### Phase 1: Foundation (Week 1) ✅ **COMPLETED**
 - [x] Project setup with venv + pip-tools
 - [x] Development environment (pytest, black, mypy, pre-commit)
-- [ ] Core curriculum engine with JSON-based topics
-- [ ] CLI interface with Rich formatting
-- [ ] Local progress tracking
+- [x] Core curriculum engine with JSON-based topics
+- [x] CLI interface (basic version)
+- [x] SQLite-based progress tracking
+
+**Current Status:** Functional CLI tutor with `python-tutor learn variables` working end-to-end!
 
 ### Phase 2: Content & Intelligence (Weeks 3-4)
 - [ ] 20 core Python topics with 4-level structure
@@ -103,7 +108,7 @@ python-ai-tutor/
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes with tests
-4. Run pre-commit hooks (`pre-commit run --all-files`)
+4. Run tests and code quality checks (`pytest && black . && ruff . && mypy .`)
 5. Commit your changes (`git commit -m 'Add amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
