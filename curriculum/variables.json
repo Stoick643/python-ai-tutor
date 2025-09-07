@@ -43,7 +43,13 @@
         "Numbers don't need quotes",
         "Use f-strings for easy formatting: f\"text {variable}\""
       ],
-      "difficulty": 1
+      "difficulty": 1,
+      "validation_type": "code_structure",
+      "requirements": {
+        "variables_required": ["name", "age", "color"],
+        "uses_print": true,
+        "uses_f_string": true
+      }
     },
     {
       "prompt": "Create two number variables and swap their values without using a temporary variable.",
@@ -52,7 +58,13 @@
         "Python allows multiple assignment",
         "Use the pattern: a, b = b, a"
       ],
-      "difficulty": 2
+      "difficulty": 2,
+      "validation_type": "code_structure",
+      "requirements": {
+        "variables_required": ["x", "y"],
+        "uses_print": true,
+        "uses_multiple_assignment": true
+      }
     }
   ]
 }

@@ -1,4 +1,9 @@
-"""Secure Python code execution engine for educational content."""
+"""Secure Python code execution engine for educational content.
+
+Secure Python code execution engine with subprocess isolation, timeout protection, 
+and sandboxing to safely run and evaluate student code submissions.
+Provides controlled execution environment with UTF-8 support and comprehensive error handling.
+"""
 
 import ast
 import subprocess
@@ -135,11 +140,19 @@ class CodeExecutor:
         
         # Execute in subprocess for isolation
         try:
+            # Ensure UTF-8 encoding in subprocess environment
+            import os
+            env = os.environ.copy()
+            env['PYTHONIOENCODING'] = 'utf-8'
+            
             process = subprocess.Popen(
                 [sys.executable, '-c', code],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                encoding='utf-8',  # Explicit UTF-8 encoding to handle Unicode
+                errors='replace',  # Replace problematic characters instead of crashing
+                env=env,  # Use environment with UTF-8 encoding
                 cwd=None,  # Don't inherit current working directory
             )
             

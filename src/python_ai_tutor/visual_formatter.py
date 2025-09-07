@@ -1,4 +1,9 @@
-"""Rich console formatting for beautiful CLI learning experience."""
+"""Rich console formatting for beautiful CLI learning experience.
+
+Rich console formatting engine using Rich library for beautiful terminal output, 
+syntax highlighting, progress bars, and themed educational content display.
+Integrates with code editor system for professional coding experience with fallback support.
+"""
 
 from typing import Optional
 
@@ -11,6 +16,7 @@ from rich.prompt import Prompt
 from rich.theme import Theme
 
 from .models import ContentType
+from .code_editor import CodeEditor, CodeEditorError, has_editor_support
 
 
 class VisualFormatter:
@@ -34,6 +40,9 @@ class VisualFormatter:
         })
         
         self.console = Console(theme=custom_theme)
+        
+        # Initialize code editor for professional coding experience
+        self.code_editor = CodeEditor()
         
         # Content type styling
         self.content_styles = {
@@ -165,8 +174,32 @@ class VisualFormatter:
         return response
     
     def ask_code_input(self, prompt_text: str = "Enter your Python code") -> str:
-        """Get multi-line code input from user."""
+        """Get code input from user using best available method."""
         self.console.print()
+        
+        # Try to use external code editor first (professional experience)
+        if has_editor_support():
+            try:
+                self.console.print(f"📝 {prompt_text}")
+                self.console.print("   [dim]Opening your code editor for a professional coding experience...[/dim]")
+                self.console.print()
+                
+                code = self.code_editor.ask_code_with_editor(prompt_text)
+                
+                # Show the code back to user with syntax highlighting
+                if code.strip():
+                    self.console.print("🔍 Your code:", style="dim")
+                    self.show_code(code)
+                
+                return code
+                
+            except CodeEditorError as e:
+                # Editor failed, fall back to terminal input
+                self.console.print(f"⚠️  Editor unavailable: {e}", style="warning")
+                self.console.print("   [dim]Falling back to terminal input...[/dim]")
+                self.console.print()
+        
+        # Fallback: Terminal-based multi-line input
         self.console.print(f"📝 {prompt_text}")
         self.console.print("   [dim]Type your code below, press Enter after each line.[/dim]")
         self.console.print("   [dim]When finished, type 'END' on a new line and press Enter.[/dim]")

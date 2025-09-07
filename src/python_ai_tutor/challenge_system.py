@@ -1,4 +1,9 @@
-"""Interactive challenge system for coding practice."""
+"""Interactive challenge system for coding practice.
+
+Interactive coding challenges with multiple validation types (exact match, code structure, 
+pattern matching) and attempt tracking with progressive hints.
+Provides flexible validation that recognizes different correct solutions to the same problem.
+"""
 
 import ast
 import re

@@ -1,4 +1,9 @@
-"""Core curriculum engine for managing learning content and user progress."""
+"""Core curriculum engine for managing learning content and user progress.
+
+Main business logic orchestrator that loads topics, manages learning progression, 
+integrates with database, and provides analytics on student performance.
+Acts as the central coordinator between content, progress tracking, and user interaction.
+"""
 
 import json
 import time

@@ -1,4 +1,9 @@
-"""Data models for the Python AI Tutor system."""
+"""Data models for the Python AI Tutor system.
+
+This module defines the core data structures (Topic, Challenge, UserProgress, ContentLevel) 
+using dataclasses to represent curriculum content and track student progress with type safety.
+Provides a clean, type-hinted interface for all educational content and progress tracking.
+"""
 
 from __future__ import annotations
 
@@ -51,6 +56,8 @@ class Challenge:
     test_cases: list[dict[str, Any]] = field(default_factory=list)
     hints: list[str] = field(default_factory=list)
     difficulty: int = 1
+    validation_type: str = "exact_match"  # exact_match, code_structure, pattern_match, custom
+    requirements: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Challenge:
@@ -61,6 +68,8 @@ class Challenge:
             test_cases=data.get("test_cases", []),
             hints=data.get("hints", []),
             difficulty=data.get("difficulty", 1),
+            validation_type=data.get("validation_type", "exact_match"),
+            requirements=data.get("requirements", {}),
         )
 
 

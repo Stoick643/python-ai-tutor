@@ -1,4 +1,9 @@
-"""Command Line Interface for the Python AI Tutor."""
+"""Command Line Interface for the Python AI Tutor.
+
+Basic command-line interface with Click framework providing commands like list, learn, 
+status, reset for simple terminal-based interaction with the learning system.
+Entry point for users who prefer traditional CLI over the rich interactive experience.
+"""
 
 import click
 from typing import Optional

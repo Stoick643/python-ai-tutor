@@ -1,5 +1,11 @@
-"""Interactive learning session that orchestrates all components."""
+"""Interactive learning session that orchestrates all components.
 
+Main session orchestrator that coordinates all components (visual formatter, code executor, 
+socratic engine) to deliver cohesive learning experiences with real-time feedback.
+Manages the complete learning flow from content presentation through challenges and validation.
+"""
+
+import ast
 import time
 from typing import Optional
 
@@ -261,17 +267,44 @@ class InteractiveLearningSession:
             else:
                 return "🔍 Interesting prediction! Let's run it and see what happens."
     
-    def _validate_challenge_solution(self, user_code: str, expected_output: str) -> tuple[bool, str]:
-        """Validate user's challenge solution.
+    def _validate_challenge_solution(self, user_code: str, challenge: Challenge) -> tuple[bool, str]:
+        """Validate user's challenge solution using appropriate validator.
         
+        Args:
+            user_code: User's Python code solution
+            challenge: Challenge object with validation metadata
+            
         Returns:
             (success, feedback_message)
         """
+        # First check if code compiles and runs
         result = self.code_executor.execute_code(user_code)
-        
         if not result.success:
             return False, f"❌ Your code has an error: {result.stderr.strip()}"
         
+        # Route to appropriate validator based on challenge type
+        validation_type = challenge.validation_type
+        
+        if validation_type == "code_structure":
+            return self._validate_code_structure(user_code, challenge.requirements)
+        elif validation_type == "pattern_match":
+            return self._validate_pattern_match(user_code, challenge.requirements)
+        elif validation_type == "custom":
+            return self._validate_custom(user_code, challenge.requirements)
+        else:  # "exact_match" or unknown types default to exact match
+            expected_output = self._get_expected_output_from_solution(challenge.solution)
+            return self._validate_exact_match(user_code, expected_output)
+    
+    def _get_expected_output_from_solution(self, solution_code: str) -> str:
+        """Get expected output by executing the solution code."""
+        result = self.code_executor.execute_code(solution_code)
+        if result.success:
+            return result.stdout.strip()
+        return ""
+    
+    def _validate_exact_match(self, user_code: str, expected_output: str) -> tuple[bool, str]:
+        """Validate using exact string matching (original behavior)."""
+        result = self.code_executor.execute_code(user_code)
         actual_output = result.stdout.strip()
         expected_clean = expected_output.strip()
         
@@ -280,12 +313,180 @@ class InteractiveLearningSession:
         else:
             return False, f"❌ Expected: {expected_clean}, but got: {actual_output}"
     
-    def _get_expected_output_from_solution(self, solution_code: str) -> str:
-        """Get expected output by executing the solution code."""
-        result = self.code_executor.execute_code(solution_code)
-        if result.success:
-            return result.stdout.strip()
-        return ""
+    def _validate_code_structure(self, user_code: str, requirements: dict) -> tuple[bool, str]:
+        """Validate code structure using AST analysis."""
+        try:
+            tree = ast.parse(user_code)
+        except SyntaxError:
+            return False, "❌ Code has syntax errors"
+        
+        # Extract code elements
+        variables = self._extract_variables(tree)
+        print_calls = self._extract_print_calls(tree)
+        
+        # Check variable requirements
+        if "variables_required" in requirements:
+            for var_name in requirements["variables_required"]:
+                if var_name not in variables:
+                    return False, f"❌ Missing required variable: {var_name}"
+        
+        # Check print usage
+        if requirements.get("uses_print", False):
+            if not print_calls:
+                return False, "❌ Your solution should include a print statement"
+        
+        # Check f-string usage
+        if requirements.get("uses_f_string", False):
+            has_f_string = any("f-string" in call.get("type", "") for call in print_calls)
+            if not has_f_string:
+                return False, "❌ Try using f-string formatting in your print statement"
+        
+        # Check multiple assignment usage
+        if requirements.get("uses_multiple_assignment", False):
+            has_multiple_assignment = self._has_multiple_assignment(tree)
+            if not has_multiple_assignment:
+                return False, "❌ Try using multiple assignment (a, b = b, a)"
+        
+        # Check sorted with reverse usage
+        if requirements.get("uses_sorted_with_reverse", False):
+            has_sorted_reverse = self._uses_sorted_with_reverse(tree)
+            if not has_sorted_reverse:
+                return False, "❌ Use sorted(list, reverse=True) to sort in descending order"
+        
+        # Check slicing usage
+        if requirements.get("uses_slicing", False):
+            has_slicing = self._uses_slicing(tree)
+            if not has_slicing:
+                return False, "❌ Use list slicing [:3] to get the first 3 items"
+        
+        # Check average calculation
+        if requirements.get("calculates_average", False):
+            calculates_avg = self._calculates_average(tree)
+            if not calculates_avg:
+                return False, "❌ Calculate the average using sum() and division"
+        
+        # Check index finding
+        if requirements.get("finds_indices", False):
+            finds_indices = self._finds_indices(tree)
+            if not finds_indices:
+                return False, "❌ Use .index() to find positions in the original list"
+        
+        return True, "🎉 Excellent code structure! You've mastered the concepts!"
+    
+    def _validate_pattern_match(self, user_code: str, requirements: dict) -> tuple[bool, str]:
+        """Validate using flexible pattern matching."""
+        result = self.code_executor.execute_code(user_code)
+        output = result.stdout.strip()
+        
+        # Check if output contains required patterns
+        if "must_contain" in requirements:
+            for pattern in requirements["must_contain"]:
+                if pattern.lower() not in output.lower():
+                    return False, f"❌ Output should contain: {pattern}"
+        
+        # Check if output matches regex patterns
+        if "regex_patterns" in requirements:
+            import re
+            for pattern in requirements["regex_patterns"]:
+                if not re.search(pattern, output):
+                    return False, f"❌ Output doesn't match expected pattern"
+        
+        return True, "🎉 Great! Your output matches the expected format!"
+    
+    def _validate_custom(self, user_code: str, requirements: dict) -> tuple[bool, str]:
+        """Custom validation hook for special cases."""
+        # This can be extended for specific challenge needs
+        return True, "🎉 Custom validation passed!"
+    
+    def _extract_variables(self, tree: ast.AST) -> dict[str, str]:
+        """Extract variable assignments from AST."""
+        variables = {}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        # Try to get the value (simplified)
+                        if isinstance(node.value, ast.Constant):
+                            variables[target.id] = str(node.value.value)
+                        else:
+                            variables[target.id] = "complex_value"
+        return variables
+    
+    def _extract_print_calls(self, tree: ast.AST) -> list[dict]:
+        """Extract print function calls and analyze their structure."""
+        print_calls = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if (isinstance(node.func, ast.Name) and node.func.id == "print"):
+                    call_info = {"type": "print"}
+                    
+                    # Check if using f-string
+                    for arg in node.args:
+                        if isinstance(arg, ast.JoinedStr):  # f-string
+                            call_info["type"] = "f-string"
+                            break
+                    
+                    print_calls.append(call_info)
+        return print_calls
+    
+    def _has_multiple_assignment(self, tree: ast.AST) -> bool:
+        """Check if code uses multiple assignment (tuple unpacking)."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                # Check if target is a tuple/list (multiple assignment)
+                for target in node.targets:
+                    if isinstance(target, (ast.Tuple, ast.List)):
+                        if len(target.elts) > 1:
+                            return True
+        return False
+    
+    def _uses_sorted_with_reverse(self, tree: ast.AST) -> bool:
+        """Check if code uses sorted() with reverse=True parameter."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check if it's a call to 'sorted'
+                if isinstance(node.func, ast.Name) and node.func.id == "sorted":
+                    # Check for reverse=True keyword argument
+                    for keyword in node.keywords:
+                        if keyword.arg == "reverse" and isinstance(keyword.value, ast.Constant):
+                            if keyword.value.value is True:
+                                return True
+        return False
+    
+    def _uses_slicing(self, tree: ast.AST) -> bool:
+        """Check if code uses list slicing."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Subscript):
+                # Check if it's slicing (has slice object)
+                if isinstance(node.slice, ast.Slice):
+                    return True
+        return False
+    
+    def _calculates_average(self, tree: ast.AST) -> bool:
+        """Check if code calculates average using sum() and division."""
+        has_sum = False
+        has_division = False
+        
+        for node in ast.walk(tree):
+            # Check for sum() function call
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "sum":
+                    has_sum = True
+            
+            # Check for division operation
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+                has_division = True
+        
+        return has_sum and has_division
+    
+    def _finds_indices(self, tree: ast.AST) -> bool:
+        """Check if code uses .index() method to find positions."""
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check if it's a method call to 'index'
+                if isinstance(node.func, ast.Attribute) and node.func.attr == "index":
+                    return True
+        return False
     
     def _run_challenges(self, challenges: list[Challenge]):
         """Run interactive coding challenges."""
@@ -322,8 +523,7 @@ class InteractiveLearningSession:
                 return True
             
             # Validate the solution
-            expected_output = self._get_expected_output_from_solution(challenge.solution)
-            success, feedback = self._validate_challenge_solution(user_code, expected_output)
+            success, feedback = self._validate_challenge_solution(user_code, challenge)
             
             if success:
                 self.visual_formatter.show_feedback(feedback, "positive")

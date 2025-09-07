@@ -40,15 +40,23 @@
   "challenges": [
     {
       "prompt": "Create a program that manages a todo list:\n- Start with todos = ['buy milk', 'walk dog', 'finish homework']\n- Add 'call mom' to the end\n- Remove 'walk dog' from the list\n- Insert 'check email' at the beginning (index 0)\n- Print the final todo list with numbers\n\nFormat the output like: '1. check email', '2. buy milk', etc.",
-      "solution": "todos = ['buy milk', 'walk dog', 'finish homework']\n\n# Add 'call mom' to the end\ntodos.append('call mom')\n\n# Remove 'walk dog'\ntodos.remove('walk dog')\n\n# Insert 'check email' at the beginning\ntodos.insert(0, 'check email')\n\n# Print with numbers\nprint(\"📋 Todo List:\")\nfor i, task in enumerate(todos, 1):\n    print(f\"{i}. {task}\")",
-      "hints": ["Use append() to add to the end", "Use remove() to delete by value", "Use insert(0, item) to add at the beginning", "Use enumerate(list, 1) to number from 1"],
+      "solution": "todos = ['buy milk', 'walk dog', 'finish homework']\n\n# Add 'call mom' to the end\ntodos.append('call mom')\n\n# Remove 'walk dog'\ntodos.remove('walk dog')\n\n# Insert 'check email' at the beginning\ntodos.insert(0, 'check email')\n\n# Print with numbers\nprint(\"📋 Todo List:\")\nfor i in range(len(todos)):\n    print(f\"{i + 1}. {todos[i]}\")",
+      "hints": ["Use append() to add to the end", "Use remove() to delete by value", "Use insert(0, item) to add at the beginning", "Use range(len(todos)) to get numbers 0,1,2,3... then add 1 when printing"],
       "difficulty": 2
     },
     {
       "prompt": "Write a program that finds the top 3 highest scores from this list:\nscores = [87, 92, 78, 96, 85, 91, 73, 89, 94, 82]\n\nYour program should:\n- Sort the scores in descending order\n- Extract the top 3 scores\n- Calculate and print the average of these top 3 scores\n- Find the positions (original indices) of these top 3 scores",
       "solution": "scores = [87, 92, 78, 96, 85, 91, 73, 89, 94, 82]\n\n# Sort in descending order\nsorted_scores = sorted(scores, reverse=True)\ntop_3 = sorted_scores[:3]\n\nprint(f\"Top 3 scores: {top_3}\")\n\n# Calculate average\naverage = sum(top_3) / len(top_3)\nprint(f\"Average of top 3: {average:.1f}\")\n\n# Find original positions\noriginal_positions = []\nfor score in top_3:\n    pos = scores.index(score)\n    original_positions.append(pos)\n    print(f\"Score {score} was at position {pos}\")\n\nprint(f\"Original indices: {original_positions}\")",
       "hints": ["Use sorted(list, reverse=True) for descending order", "Use list slicing [:3] to get first 3 items", "Use sum() and len() for average calculation", "Use list.index() to find position of a value"],
-      "difficulty": 3
+      "difficulty": 3,
+      "validation_type": "code_structure",
+      "requirements": {
+        "uses_sorted_with_reverse": true,
+        "uses_slicing": true,
+        "calculates_average": true,
+        "finds_indices": true,
+        "uses_print": true
+      }
     }
   ]
 }

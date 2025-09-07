@@ -1,4 +1,9 @@
-"""Enhanced CLI with interactive learning capabilities."""
+"""Enhanced CLI with interactive learning capabilities.
+
+Enhanced CLI entry point that launches the rich interactive learning experience 
+with visual formatting and real-time feedback using Rich library.
+Provides the main learning interface with beautiful terminal UI and professional coding tools.
+"""
 
 import click
 from typing import Optional

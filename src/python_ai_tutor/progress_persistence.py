@@ -1,4 +1,9 @@
-"""SQLite-based progress persistence for the Python AI Tutor."""
+"""SQLite-based progress persistence for the Python AI Tutor.
+
+SQLite database layer for storing and retrieving user progress, handling CRUD operations 
+for topics, scores, and learning statistics with JSON serialization for complex data types.
+Provides reliable, scalable persistence that works for both CLI and future web applications.
+"""
 
 import json
 import sqlite3

@@ -1,4 +1,9 @@
-"""Socratic questioning engine for interactive learning."""
+"""Socratic questioning engine for interactive learning.
+
+Intelligent questioning system that generates context-aware questions, analyzes student 
+responses, and provides adaptive hints using pedagogical principles.
+Implements the Socratic method to guide students toward understanding through inquiry.
+"""
 
 import random
 import re
