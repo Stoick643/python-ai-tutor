@@ -2,6 +2,9 @@
 rich>=13.0.0
 click>=8.0.0
 
+# Web application
+flask>=2.3.0
+
 # Future AI integration (Phase 4 - not needed yet)
 # openai>=1.0.0
 # anthropic>=0.3.0

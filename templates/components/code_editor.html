@@ -1,0 +1,119 @@
+<!-- Interactive Code Editor Component -->
+<div class="field">
+    <label class="label">
+        <i class="fas fa-keyboard"></i>&nbsp;Your Code:
+    </label>
+    <div class="control">
+        <textarea class="textarea is-family-monospace" 
+                  id="user-code" 
+                  placeholder="# Write your Python code here
+print('Hello, Python!')"
+                  rows="8"></textarea>
+    </div>
+</div>
+
+<div class="field is-grouped">
+    <div class="control">
+        <button class="button is-primary" id="run-button" onclick="runUserCode()">
+            <i class="fas fa-play"></i>&nbsp;Run Code
+        </button>
+    </div>
+    <div class="control">
+        <button class="button is-light" onclick="clearCode()">
+            <i class="fas fa-eraser"></i>&nbsp;Clear
+        </button>
+    </div>
+    <div class="control">
+        <button class="button is-info" onclick="insertExample()">
+            <i class="fas fa-copy"></i>&nbsp;Insert Example
+        </button>
+    </div>
+</div>
+
+<!-- Code output section -->
+<div id="code-output" style="display:none;">
+    <div class="field">
+        <label class="label">
+            <i class="fas fa-terminal"></i>&nbsp;Output:
+        </label>
+        <div class="control">
+            <div class="box has-background-dark has-text-light">
+                <pre id="output-content" class="has-text-light"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Execution status -->
+<div id="execution-status" style="display:none;">
+    <div class="notification">
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <span id="status-text">Ready</span>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <span id="execution-time" class="tag is-light"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function runUserCode() {
+    const code = document.getElementById('user-code').value;
+    runCode(code, 'code-output');
+}
+
+function clearCode() {
+    document.getElementById('user-code').value = '';
+    document.getElementById('code-output').style.display = 'none';
+    document.getElementById('execution-status').style.display = 'none';
+}
+
+function insertExample() {
+    {% if current_level_content and current_level_content.code %}
+    const exampleCode = `{{ current_level_content.code|safe }}`;
+    document.getElementById('user-code').value = exampleCode;
+    {% else %}
+    // Default example if no current level code
+    const exampleCode = `# Try this example
+name = "Python Learner"
+print(f"Hello, {name}!")
+print("Welcome to interactive coding!")`;
+    document.getElementById('user-code').value = exampleCode;
+    {% endif %}
+}
+
+// Keyboard shortcuts
+document.getElementById('user-code').addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + Enter to run code
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runUserCode();
+    }
+    
+    // Tab indentation
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        
+        // Insert 4 spaces
+        this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+    }
+});
+
+// Auto-resize textarea
+function autoResize() {
+    const textarea = document.getElementById('user-code');
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+document.getElementById('user-code').addEventListener('input', autoResize);
+</script>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Python AI Tutor{% endblock %}</title>
+    
+    <!-- Bulma CSS Framework via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar is-dark" role="navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="{{ url_for('learning.index') }}">
+                <i class="fas fa-python"></i>
+                <strong>&nbsp;Python AI Tutor</strong>
+            </a>
+            
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarBasic" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="{{ url_for('learning.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>&nbsp;Dashboard
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        <i class="fas fa-book"></i>&nbsp;Topics
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='variables') }}">
+                            Variables
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='conditionals') }}">
+                            Conditionals
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='lists') }}">
+                            Lists
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='loops') }}">
+                            Loops
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='dictionaries') }}">
+                            Dictionaries
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='functions') }}">
+                            Functions
+                        </a>
+                        <a class="navbar-item" href="{{ url_for('learning.learn_topic', topic_id='error_handling') }}">
+                            Error Handling
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="{{ url_for('learning.dashboard') }}">
+                            <strong>Start Learning</strong>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <section class="section" style="padding: 1rem;">
+                {% for category, message in messages %}
+                    <div class="notification is-{{ 'danger' if category == 'error' else category }}">
+                        <button class="delete" onclick="this.parentElement.style.display='none';"></button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>Python AI Tutor</strong> - Learn Python programming with interactive examples and challenges.
+            </p>
+            <p>
+                Built with ❤️ using Flask and your dedication to learning.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    
+    <!-- Bulma navbar burger toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Python AI Tutor - Learn Python Programming{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero is-primary is-large">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-vcentered">
+                <div class="column is-6">
+                    <h1 class="title is-2">
+                        Learn Python Programming
+                        <br>
+                        <span class="has-text-weight-light">with AI-Powered Guidance</span>
+                    </h1>
+                    <p class="subtitle is-5">
+                        Master Python fundamentals through interactive lessons, real code examples, 
+                        and challenging exercises. Get personalized feedback and track your progress.
+                    </p>
+                    <div class="buttons">
+                        <a href="{{ url_for('learning.dashboard') }}" class="button is-white is-large">
+                            <i class="fas fa-rocket"></i>&nbsp;
+                            <strong>Start Learning</strong>
+                        </a>
+                        <a href="#features" class="button is-light is-large">
+                            Learn More
+                        </a>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="tags are-medium" style="margin-top: 2rem;">
+                        <span class="tag is-white">
+                            <i class="fas fa-book"></i>&nbsp;{{ total_topics }} Topics
+                        </span>
+                        <span class="tag is-white">
+                            <i class="fas fa-code"></i>&nbsp;Interactive Coding
+                        </span>
+                        <span class="tag is-white">
+                            <i class="fas fa-chart-line"></i>&nbsp;Progress Tracking
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="column is-6">
+                    <!-- Code Example Preview -->
+                    <div class="box has-background-dark has-text-light">
+                        <p class="has-text-grey-light mb-3">
+                            <i class="fas fa-terminal"></i>&nbsp;Try it yourself:
+                        </p>
+                        <pre class="has-background-black-ter" style="padding: 1.5rem; border-radius: 4px;"><code class="language-python"># Your first Python program
+name = "Future Python Developer"
+print(f"Hello, {name}!")
+
+# Learn step by step
+for skill in ["variables", "loops", "functions"]:
+    print(f"✓ Mastering {skill}")
+
+print("Ready to build amazing things!")</code></pre>
+                        <div class="has-text-success mt-3">
+                            <i class="fas fa-play"></i>&nbsp;Output:
+                            <br>
+                            <span class="is-family-monospace">Hello, Future Python Developer!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="section">
+    <div class="container">
+        <h2 class="title is-3 has-text-centered mb-6">Why Choose Python AI Tutor?</h2>
+        
+        <div class="columns">
+            <div class="column is-4">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon is-large has-text-primary">
+                                    <i class="fas fa-brain fa-2x"></i>
+                                </span>
+                            </div>
+                            <div class="media-content">
+                                <h3 class="title is-5">AI-Powered Learning</h3>
+                            </div>
+                        </div>
+                        <div class="content">
+                            Get personalized feedback on your code, intelligent hints when stuck, 
+                            and adaptive challenges that match your learning pace.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column is-4">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon is-large has-text-primary">
+                                    <i class="fas fa-code fa-2x"></i>
+                                </span>
+                            </div>
+                            <div class="media-content">
+                                <h3 class="title is-5">Hands-On Practice</h3>
+                            </div>
+                        </div>
+                        <div class="content">
+                            Write and run real Python code in your browser. Learn by doing 
+                            with interactive exercises and instant feedback.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column is-4">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon is-large has-text-primary">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </span>
+                            </div>
+                            <div class="media-content">
+                                <h3 class="title is-5">Track Progress</h3>
+                            </div>
+                        </div>
+                        <div class="content">
+                            Monitor your learning journey with detailed progress tracking, 
+                            completion statistics, and performance analytics.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning Path Section -->
+<section class="section has-background-light">
+    <div class="container">
+        <h2 class="title is-3 has-text-centered mb-6">Your Learning Path</h2>
+        
+        <div class="columns is-multiline">
+            <div class="column is-6">
+                <div class="box">
+                    <h4 class="title is-5">
+                        <span class="tag is-primary">1</span>&nbsp;
+                        Foundation
+                    </h4>
+                    <div class="content">
+                        <ul>
+                            <li><strong>Variables:</strong> Store and manipulate data</li>
+                            <li><strong>Conditionals:</strong> Make decisions in code</li>
+                            <li><strong>Lists:</strong> Work with collections</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column is-6">
+                <div class="box">
+                    <h4 class="title is-5">
+                        <span class="tag is-info">2</span>&nbsp;
+                        Control Flow
+                    </h4>
+                    <div class="content">
+                        <ul>
+                            <li><strong>Loops:</strong> Repeat actions efficiently</li>
+                            <li><strong>Dictionaries:</strong> Key-value data structures</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column is-6">
+                <div class="box">
+                    <h4 class="title is-5">
+                        <span class="tag is-success">3</span>&nbsp;
+                        Advanced Concepts
+                    </h4>
+                    <div class="content">
+                        <ul>
+                            <li><strong>Functions:</strong> Reusable code blocks</li>
+                            <li><strong>Error Handling:</strong> Robust programs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column is-6">
+                <div class="box">
+                    <h4 class="title is-5">
+                        <span class="tag is-warning">4</span>&nbsp;
+                        Projects
+                    </h4>
+                    <div class="content">
+                        <ul>
+                            <li><strong>Build Real Applications</strong></li>
+                            <li><strong>Portfolio Projects</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="has-text-centered">
+            <a href="{{ url_for('learning.dashboard') }}" class="button is-primary is-large">
+                <i class="fas fa-play"></i>&nbsp;
+                <strong>Begin Your Journey</strong>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

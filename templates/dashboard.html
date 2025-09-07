@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Python AI Tutor{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <!-- Header -->
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <div>
+                        <h1 class="title">Your Learning Dashboard</h1>
+                        <p class="subtitle">Continue your Python journey</p>
+                    </div>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <div class="tags are-large">
+                        <span class="tag is-success">{{ completed_topics }}</span>
+                        <span class="tag is-light">of {{ total_topics }} completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="box mb-6">
+            <div class="columns">
+                <div class="column is-3">
+                    <div class="has-text-centered">
+                        <p class="heading">Completed Topics</p>
+                        <p class="title is-3 has-text-success">{{ completed_topics }}</p>
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="has-text-centered">
+                        <p class="heading">Overall Progress</p>
+                        <p class="title is-3 has-text-info">
+                            {{ "%.0f"|format((completed_topics / total_topics * 100) if total_topics > 0 else 0) }}%
+                        </p>
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="has-text-centered">
+                        <p class="heading">Current Streak</p>
+                        <p class="title is-3 has-text-warning">🔥 0</p>
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="has-text-centered">
+                        <p class="heading">Next Goal</p>
+                        {% set next_incomplete = topics|selectattr('is_completed', 'equalto', false)|first %}
+                        <p class="title is-6 has-text-primary">
+                            {% if next_incomplete %}
+                                {{ next_incomplete.title }}
+                            {% else %}
+                                All Done! 🎉
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topics Grid -->
+        <div class="columns is-multiline">
+            {% for topic in topics %}
+            <div class="column is-6-tablet is-4-desktop">
+                <div class="card {% if topic.is_completed %}has-background-success-light{% endif %}">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-left">
+                                <span class="icon is-large">
+                                    {% if topic.is_completed %}
+                                        <i class="fas fa-check-circle fa-2x has-text-success"></i>
+                                    {% elif topic.completion_percentage > 0 %}
+                                        <i class="fas fa-play-circle fa-2x has-text-info"></i>
+                                    {% else %}
+                                        <i class="fas fa-circle fa-2x has-text-grey-light"></i>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="media-content">
+                                <p class="title is-5">{{ topic.title }}</p>
+                                <p class="subtitle is-6">
+                                    <span class="tag is-light">
+                                        {{ "★" * topic.difficulty }}{{ "☆" * (5 - topic.difficulty) }}
+                                    </span>
+                                    <span class="tag is-light">
+                                        {{ topic.estimated_time }}min
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="content">
+                            <progress class="progress {% if topic.is_completed %}is-success{% elif topic.completion_percentage > 0 %}is-info{% else %}is-light{% endif %}" 
+                                      value="{{ topic.completion_percentage }}" max="100">
+                                {{ "%.0f"|format(topic.completion_percentage) }}%
+                            </progress>
+                            <p class="has-text-grey">
+                                {% if topic.is_completed %}
+                                    ✅ Complete!
+                                {% elif topic.completion_percentage > 0 %}
+                                    📚 Level {{ topic.current_level + 1 }} - {{ "%.0f"|format(topic.completion_percentage) }}% done
+                                {% else %}
+                                    🚀 Ready to start
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Prerequisites -->
+                        {% if topic.prerequisites %}
+                        <div class="content">
+                            <p class="heading">Prerequisites:</p>
+                            <div class="tags">
+                                {% for prereq in topic.prerequisites %}
+                                <span class="tag is-small">{{ prereq }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <footer class="card-footer">
+                        <a href="{{ url_for('learning.learn_topic', topic_id=topic.id) }}" 
+                           class="card-footer-item">
+                            {% if topic.is_completed %}
+                                <i class="fas fa-redo"></i>&nbsp;Review
+                            {% elif topic.completion_percentage > 0 %}
+                                <i class="fas fa-play"></i>&nbsp;Continue
+                            {% else %}
+                                <i class="fas fa-rocket"></i>&nbsp;Start
+                            {% endif %}
+                        </a>
+                        {% if topic.completion_percentage > 0 %}
+                        <a href="#" class="card-footer-item" onclick="showTopicStats('{{ topic.id }}')">
+                            <i class="fas fa-chart-bar"></i>&nbsp;Stats
+                        </a>
+                        {% endif %}
+                    </footer>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="box">
+            <h3 class="title is-4">Quick Actions</h3>
+            <div class="buttons">
+                {% set next_topic = topics|selectattr('is_completed', 'equalto', false)|first %}
+                {% if next_topic %}
+                <a href="{{ url_for('learning.learn_topic', topic_id=next_topic.id) }}" 
+                   class="button is-primary">
+                    <i class="fas fa-play"></i>&nbsp;
+                    Continue with {{ next_topic.title }}
+                </a>
+                {% endif %}
+                
+                <button class="button is-info" onclick="showOverallProgress()">
+                    <i class="fas fa-chart-line"></i>&nbsp;
+                    View Progress Report
+                </button>
+                
+                <a href="{{ url_for('learning.index') }}" class="button is-light">
+                    <i class="fas fa-home"></i>&nbsp;
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Modal (placeholder for future enhancement) -->
+<div id="progress-modal" class="modal">
+    <div class="modal-background" onclick="closeModal()"></div>
+    <div class="modal-content">
+        <div class="box">
+            <h3 class="title">Progress Details</h3>
+            <div id="progress-content">
+                <p>Progress analytics coming soon!</p>
+            </div>
+        </div>
+    </div>
+    <button class="modal-close is-large" onclick="closeModal()"></button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTopicStats(topicId) {
+    // Placeholder for topic-specific stats
+    alert(`Stats for topic: ${topicId}\nFeature coming soon!`);
+}
+
+function showOverallProgress() {
+    document.getElementById('progress-modal').classList.add('is-active');
+}
+
+function closeModal() {
+    document.getElementById('progress-modal').classList.remove('is-active');
+}
+</script>
+{% endblock %}

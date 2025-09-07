@@ -1,0 +1,384 @@
+/**
+ * Custom styles for Python AI Tutor Web Application
+ * Built on top of Bulma CSS framework
+ */
+
+/* Root variables for theming */
+:root {
+  --python-blue: #306998;
+  --python-yellow: #ffd43b;
+  --code-bg: #2b2b2b;
+  --code-text: #f8f8f2;
+  --success-green: #48c774;
+  --error-red: #f14668;
+  --border-radius: 6px;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Code blocks and syntax highlighting */
+.code-block {
+  background-color: var(--code-bg);
+  color: var(--code-text);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-block::before {
+  content: "Python";
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  background: var(--python-blue);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+/* Code editor enhancements */
+.textarea.is-family-monospace {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border: 2px solid #dbdbdb;
+  border-radius: var(--border-radius);
+  transition: border-color 0.3s ease;
+}
+
+.textarea.is-family-monospace:focus {
+  border-color: var(--python-blue);
+  box-shadow: 0 0 0 0.125em rgba(48, 105, 152, 0.25);
+}
+
+/* Progress bars */
+.progress.is-info::-webkit-progress-value {
+  background-color: var(--python-blue);
+}
+
+.progress.is-info::-moz-progress-bar {
+  background-color: var(--python-blue);
+}
+
+/* Topic cards on dashboard */
+.topic-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.topic-card.completed {
+  border-left: 4px solid var(--success-green);
+}
+
+.topic-card.in-progress {
+  border-left: 4px solid var(--python-blue);
+}
+
+/* Lesson navigation sidebar */
+.lesson-sidebar {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+/* Level buttons */
+.level-button {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.level-button.current {
+  background-color: var(--python-blue);
+  color: white;
+  font-weight: bold;
+}
+
+.level-button.completed {
+  background-color: var(--success-green);
+  color: white;
+}
+
+.level-button.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Code output styling */
+.code-output {
+  background-color: var(--code-bg);
+  color: var(--code-text);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.code-output.success {
+  border-left: 4px solid var(--success-green);
+}
+
+.code-output.error {
+  border-left: 4px solid var(--error-red);
+}
+
+/* Execution status */
+.execution-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.execution-time {
+  color: #666;
+  font-family: monospace;
+}
+
+/* Challenge cards */
+.challenge-card {
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border: 1px solid #dbdbdb;
+}
+
+.challenge-card.completed {
+  border-color: var(--success-green);
+  background-color: rgba(72, 199, 116, 0.05);
+}
+
+/* Hints styling */
+.hint-container {
+  background-color: #f5f5f5;
+  border-left: 4px solid #ffdd57;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+.hint-button {
+  margin-bottom: 0.5rem;
+}
+
+/* Feedback messages */
+.feedback-positive {
+  background-color: rgba(72, 199, 116, 0.1);
+  border: 1px solid var(--success-green);
+  color: #257942;
+}
+
+.feedback-negative {
+  background-color: rgba(241, 70, 104, 0.1);
+  border: 1px solid var(--error-red);
+  color: #cc0f35;
+}
+
+/* Hero section customizations */
+.hero.is-primary {
+  background: linear-gradient(135deg, var(--python-blue) 0%, #4a90a4 100%);
+}
+
+/* Navigation enhancements */
+.navbar-item.is-active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+}
+
+/* Loading states */
+.is-loading-custom {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.is-loading-custom::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.5rem;
+  margin-left: -0.5rem;
+  border: 2px solid #dbdbdb;
+  border-top-color: var(--python-blue);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design helpers */
+@media screen and (max-width: 768px) {
+  .lesson-sidebar {
+    position: static;
+    max-height: none;
+    margin-bottom: 2rem;
+  }
+  
+  .hero.is-large .hero-body {
+    padding-bottom: 3rem;
+    padding-top: 3rem;
+  }
+  
+  .hero .title {
+    font-size: 2rem !important;
+  }
+  
+  .code-block {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+  
+  .textarea.is-family-monospace {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .hero .title {
+    font-size: 1.5rem !important;
+  }
+  
+  .hero .subtitle {
+    font-size: 1rem !important;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+  
+  .button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Focus states for accessibility */
+.button:focus,
+.textarea:focus,
+.input:focus {
+  outline: 2px solid var(--python-blue);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .footer,
+  .button,
+  .hero {
+    display: none !important;
+  }
+  
+  .code-block,
+  .code-output {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  /* Will be implemented if needed */
+}
+
+/* Custom utility classes */
+.text-python-blue { color: var(--python-blue); }
+.bg-python-blue { background-color: var(--python-blue); }
+.border-python-blue { border-color: var(--python-blue); }
+
+.text-python-yellow { color: var(--python-yellow); }
+.bg-python-yellow { background-color: var(--python-yellow); }
+
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+.user-select-none { user-select: none; }
+.user-select-all { user-select: all; }
+
+/* Scrollable containers */
+.scrollable-y {
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.scrollable-x {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.status-indicator.success { background-color: var(--success-green); }
+.status-indicator.error { background-color: var(--error-red); }
+.status-indicator.warning { background-color: #ffdd57; }
+.status-indicator.info { background-color: var(--python-blue); }

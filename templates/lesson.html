@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.title }} - Python AI Tutor{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <!-- Sidebar with topic outline -->
+            <div class="column is-3">
+                <div class="box">
+                    <h3 class="title is-5">{{ topic.title }}</h3>
+                    <p class="subtitle is-6">
+                        <span class="tag is-info">Level {{ current_level + 1 }}</span>
+                        <span class="tag is-light">{{ topic.difficulty }}★</span>
+                    </p>
+                    
+                    <!-- Progress for this topic -->
+                    <div class="field">
+                        <label class="label">Progress</label>
+                        <progress class="progress is-info" value="{{ completion_percentage }}" max="100">
+                            {{ "%.0f"|format(completion_percentage) }}%
+                        </progress>
+                        <p class="help">{{ "%.0f"|format(completion_percentage) }}% complete</p>
+                    </div>
+                    
+                    <!-- Level navigation -->
+                    <div class="field">
+                        <label class="label">Levels</label>
+                        <div class="buttons are-small">
+                            {% for level_info in levels_info %}
+                            <button class="button {% if level_info.is_current %}is-info{% elif level_info.is_completed %}is-success{% else %}is-light{% endif %}"
+                                    {% if not level_info.is_completed and not level_info.is_current %}disabled{% endif %}
+                                    onclick="{% if level_info.is_completed or level_info.is_current %}goToLevel({{ level_info.level }}){% endif %}">
+                                {{ level_info.level + 1 }}
+                                {% if level_info.is_completed %}
+                                    <i class="fas fa-check"></i>
+                                {% elif level_info.is_current %}
+                                    <i class="fas fa-play"></i>
+                                {% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation buttons -->
+                    <div class="field">
+                        <div class="buttons">
+                            <button class="button is-light" onclick="previousLevel()" 
+                                    {% if current_level == 0 %}disabled{% endif %}>
+                                <i class="fas fa-arrow-left"></i>&nbsp;Previous
+                            </button>
+                            <button class="button is-primary" onclick="nextLevel()" 
+                                    id="next-button">
+                                Next&nbsp;<i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Quick actions -->
+                    <div class="buttons are-small">
+                        <a href="{{ url_for('learning.dashboard') }}" class="button is-light">
+                            <i class="fas fa-tachometer-alt"></i>&nbsp;Dashboard
+                        </a>
+                        <button class="button is-info" onclick="showHelp()">
+                            <i class="fas fa-question-circle"></i>&nbsp;Help
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main content area -->
+            <div class="column is-9">
+                <!-- Level header -->
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <h1 class="title">
+                                {{ current_level_content.type.value.replace('_', ' ').title() }}
+                                <span class="tag is-info">Level {{ current_level + 1 }}</span>
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <span class="tag is-light">
+                                <i class="fas fa-clock"></i>&nbsp;
+                                ~{{ topic.estimated_time }} min
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content display -->
+                <div class="box">
+                    <div class="content">
+                        <p class="is-size-5">{{ current_level_content.content }}</p>
+                        
+                        {% if current_level_content.pseudocode %}
+                        <div class="notification is-info is-light">
+                            <p><strong>Structure:</strong></p>
+                            <p class="is-family-monospace">{{ current_level_content.pseudocode }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if current_level_content.code %}
+                    <!-- Code example -->
+                    <div class="field">
+                        <label class="label">
+                            <i class="fas fa-code"></i>&nbsp;Example Code:
+                        </label>
+                        <div class="control">
+                            <pre class="box has-background-dark has-text-light"><code class="language-python">{{ current_level_content.code }}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Run example button -->
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-success" onclick="runExampleCode()">
+                                <i class="fas fa-play"></i>&nbsp;Run Example
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Example output -->
+                    {% if current_level_content.output %}
+                    <div id="example-output" class="notification is-success is-light" style="display:none;">
+                        <p><strong>Output:</strong></p>
+                        <pre class="has-text-dark">{{ current_level_content.output }}</pre>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    
+                    {% if current_level_content.explanation %}
+                    <!-- Explanation -->
+                    <div class="content">
+                        <h4 class="title is-5">💡 Explanation</h4>
+                        <p>{{ current_level_content.explanation }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if current_level_content.key_concepts %}
+                    <!-- Key concepts -->
+                    <div class="content">
+                        <h4 class="title is-5">🔑 Key Concepts</h4>
+                        <div class="tags">
+                            {% for concept in current_level_content.key_concepts %}
+                            <span class="tag is-primary is-light">{{ concept }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Try it yourself section -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <i class="fas fa-keyboard"></i>&nbsp;Try it yourself
+                    </h3>
+                    
+                    {% include 'components/code_editor.html' %}
+                </div>
+                
+                <!-- Challenges section -->
+                {% if topic.challenges %}
+                <div class="box">
+                    <h3 class="title is-5">
+                        <i class="fas fa-trophy"></i>&nbsp;Challenges
+                    </h3>
+                    
+                    <div class="content">
+                        <p>Ready to test your skills? Try these challenges:</p>
+                        
+                        {% for challenge in topic.challenges %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <p class="card-header-title">
+                                    Challenge {{ loop.index }}
+                                    <span class="tag is-warning ml-2">
+                                        {{ "★" * challenge.difficulty }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="card-content">
+                                <div class="content">
+                                    <p>{{ challenge.prompt }}</p>
+                                </div>
+                                
+                                <!-- Challenge code editor -->
+                                <div class="field">
+                                    <textarea class="textarea is-family-monospace" 
+                                            id="challenge-code-{{ loop.index0 }}" 
+                                            placeholder="Write your solution here..."
+                                            rows="6"></textarea>
+                                </div>
+                                
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button class="button is-primary" 
+                                                onclick="submitChallenge({{ loop.index0 }})">
+                                            <i class="fas fa-check"></i>&nbsp;Submit Solution
+                                        </button>
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-info" 
+                                                onclick="showHints({{ loop.index0 }})">
+                                            <i class="fas fa-lightbulb"></i>&nbsp;Hint
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Challenge feedback -->
+                                <div id="challenge-feedback-{{ loop.index0 }}" style="display:none;"></div>
+                                
+                                <!-- Hints -->
+                                <div id="challenge-hints-{{ loop.index0 }}" style="display:none;">
+                                    <div class="notification is-info is-light">
+                                        <p><strong>Hints:</strong></p>
+                                        <ul>
+                                            {% for hint in challenge.hints %}
+                                            <li>{{ hint }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const currentTopic = '{{ topic.id }}';
+const currentLevel = {{ current_level }};
+const totalLevels = {{ levels_info|length }};
+
+function runExampleCode() {
+    {% if current_level_content.code %}
+    const exampleCode = `{{ current_level_content.code|safe }}`;
+    runCode(exampleCode, 'example-output');
+    document.getElementById('example-output').style.display = 'block';
+    {% endif %}
+}
+
+function goToLevel(level) {
+    // Reload page with new level (simplified approach)
+    window.location.href = `{{ url_for('learning.learn_topic', topic_id=topic.id) }}?level=${level}`;
+}
+
+function previousLevel() {
+    if (currentLevel > 0) {
+        goToLevel(currentLevel - 1);
+    }
+}
+
+function nextLevel() {
+    if (currentLevel < totalLevels - 1) {
+        // Update progress first
+        updateProgress(currentTopic, currentLevel + 1);
+        goToLevel(currentLevel + 1);
+    }
+}
+
+function showHints(challengeIndex) {
+    const hintsDiv = document.getElementById(`challenge-hints-${challengeIndex}`);
+    if (hintsDiv.style.display === 'none') {
+        hintsDiv.style.display = 'block';
+    } else {
+        hintsDiv.style.display = 'none';
+    }
+}
+
+function submitChallenge(challengeIndex) {
+    const code = document.getElementById(`challenge-code-${challengeIndex}`).value;
+    const feedbackDiv = document.getElementById(`challenge-feedback-${challengeIndex}`);
+    
+    if (!code.trim()) {
+        showFeedback(feedbackDiv, false, 'Please write some code first!');
+        return;
+    }
+    
+    // Send challenge for validation
+    fetch('/validate_challenge', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            topic_id: currentTopic,
+            challenge_index: challengeIndex,
+            code: code
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showFeedback(feedbackDiv, data.success, data.message);
+        if (data.success) {
+            updateProgress(currentTopic, currentLevel, 1.0);
+        }
+    })
+    .catch(error => {
+        showFeedback(feedbackDiv, false, 'Error validating challenge: ' + error);
+    });
+}
+
+function showFeedback(feedbackDiv, success, message) {
+    feedbackDiv.innerHTML = `
+        <div class="notification ${success ? 'is-success' : 'is-danger'} is-light">
+            <p>${message}</p>
+        </div>
+    `;
+    feedbackDiv.style.display = 'block';
+}
+
+function showHelp() {
+    alert('Help:\n\n- Use the sidebar to navigate between levels\n- Try running the example code to see how it works\n- Complete challenges to test your understanding\n- Use hints if you get stuck');
+}
+
+// Auto-save progress when viewing content
+setTimeout(() => {
+    updateProgress(currentTopic, currentLevel);
+}, 5000); // Save after 5 seconds of viewing
+</script>
+{% endblock %}
