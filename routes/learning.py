@@ -57,13 +57,43 @@ def dashboard():
             print(f"Warning: Could not load topic {topic_id}: {e}")
             continue
     
+    # Sort topics by dependency order for natural learning progression
+    def sort_topics_by_dependencies(topics):
+        """Sort topics in learning order based on prerequisites."""
+        # Define the proper learning order based on dependencies
+        learning_order = [
+            'variables',      # No prerequisites
+            'conditionals',   # Requires variables
+            'lists',          # Requires variables  
+            'loops',          # Requires conditionals, lists
+            'dictionaries',   # Requires lists
+            'functions',      # Requires conditionals, lists, loops, dictionaries
+            'error_handling'  # Requires functions
+        ]
+        
+        # Sort topics according to learning order
+        topic_dict = {topic['id']: topic for topic in topics}
+        sorted_topics = []
+        
+        for topic_id in learning_order:
+            if topic_id in topic_dict:
+                sorted_topics.append(topic_dict[topic_id])
+        
+        return sorted_topics
+    
+    topics_with_progress = sort_topics_by_dependencies(topics_with_progress)
+    
+    # Get streak information for motivation
+    streak_info = current_app.curriculum_engine.progress_persistence.get_streak_info(user_id)
+    
     # Calculate overall stats
     completed_topics = len([t for t in topics_with_progress if t['is_completed']])
     
     return render_template('dashboard.html', 
                          topics=topics_with_progress,
                          completed_topics=completed_topics,
-                         total_topics=len(topic_ids))
+                         total_topics=len(topic_ids),
+                         streak_info=streak_info)
 
 
 @learning_bp.route('/learn/<topic_id>')
@@ -80,7 +110,13 @@ def learn_topic(topic_id):
         
         user_id = get_current_user()
         user_progress = current_app.curriculum_engine.load_user_progress(user_id)
-        current_level = user_progress.get_current_level(topic_id)
+        
+        # Check for level parameter in URL (for navigation)
+        requested_level = request.args.get('level', type=int)
+        if requested_level is not None:
+            current_level = requested_level
+        else:
+            current_level = user_progress.get_current_level(topic_id)
         
         # Get current level content
         level_key = str(current_level)
@@ -149,6 +185,7 @@ def validate_challenge():
     """Run challenge validation using existing InteractiveLearningSession logic."""
     from flask import jsonify
     from python_ai_tutor.interactive_session import InteractiveLearningSession
+    from python_ai_tutor.psychological_engine import PsychologicalEngine
     
     try:
         data = request.json
@@ -170,10 +207,55 @@ def validate_challenge():
         session_instance = InteractiveLearningSession()
         is_valid, message = session_instance._validate_challenge_solution(user_code, challenge)
         
-        return jsonify({
+        # Initialize psychological engine for smart messaging
+        psychology = PsychologicalEngine()
+        
+        # Build context for psychological analysis
+        attempt_count = data.get('attempt_count', 1)  # Frontend can track this
+        context = {
+            'attempt_count': attempt_count,
+            'challenge_difficulty': challenge.difficulty if hasattr(challenge, 'difficulty') else 2,
+            'is_first_attempt': attempt_count == 1
+        }
+        
+        response_data = {
             'success': is_valid,
             'message': message
-        })
+        }
+        
+        # Add psychological enhancement for failed attempts
+        if not is_valid and psychology.should_show_encouragement(context):
+            # Generate growth mindset encouragement message
+            encouragement = psychology.generate_encouragement_message(context)
+            response_data['encouragement'] = encouragement
+            
+            # Combine original message with encouragement
+            response_data['message'] = f"{message}\n\n💡 {encouragement}"
+        
+        # Add celebration for successful completion
+        elif is_valid:
+            if attempt_count > 3:
+                # Extra celebration for perseverance
+                celebration = psychology.get_celebration_message('difficult_challenge')
+                response_data['celebration'] = celebration
+            else:
+                # Regular success message
+                celebration = psychology.get_celebration_message()
+                response_data['celebration'] = celebration
+        
+        # Update streak for successful challenge completion
+        if is_valid:
+            from app import get_current_user
+            user_id = get_current_user()
+            streak_update = current_app.curriculum_engine.progress_persistence.update_daily_streak(user_id)
+            
+            # Add celebration for streak milestones
+            if streak_update.get('is_new_streak_record'):
+                response_data['streak_celebration'] = f"🎉 New streak record: {streak_update['current_streak']} days!"
+            elif streak_update['current_streak'] in [7, 30, 100]:
+                response_data['streak_celebration'] = f"🔥 Amazing! {streak_update['current_streak']} day streak!"
+        
+        return jsonify(response_data)
     
     except Exception as e:
         return jsonify({'success': False, 'message': f'Validation error: {str(e)}'})
@@ -197,7 +279,18 @@ def update_progress():
             user_id, topic_id, level, score=1.0  # Perfect score for completing level
         )
         
-        return jsonify({'success': True, 'message': 'Progress saved'})
+        # Update daily learning streak
+        streak_update = current_app.curriculum_engine.progress_persistence.update_daily_streak(user_id)
+        
+        response_data = {'success': True, 'message': 'Progress saved'}
+        
+        # Add celebration message for streak milestones
+        if streak_update.get('is_new_streak_record'):
+            response_data['celebration'] = f"🎉 New streak record: {streak_update['current_streak']} days!"
+        elif streak_update['current_streak'] in [7, 30, 100]:
+            response_data['celebration'] = f"🔥 Amazing! {streak_update['current_streak']} day streak!"
+        
+        return jsonify(response_data)
     
     except Exception as e:
         return jsonify({'success': False, 'message': f'Failed to save progress: {str(e)}'})

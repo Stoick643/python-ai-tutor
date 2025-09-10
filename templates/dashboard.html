@@ -6,21 +6,29 @@
 <section class="section">
     <div class="container">
         <!-- Header -->
-        <div class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    <div>
-                        <h1 class="title">Your Learning Dashboard</h1>
-                        <p class="subtitle">Continue your Python journey</p>
-                    </div>
-                </div>
+        <div class="columns is-vcentered mb-5">
+            <div class="column">
+                <h1 class="title is-2 mb-2">Your Learning Dashboard</h1>
+                <p class="subtitle is-4 has-text-grey">Continue your Python journey</p>
             </div>
-            <div class="level-right">
-                <div class="level-item">
-                    <div class="tags are-large">
-                        <span class="tag is-success">{{ completed_topics }}</span>
-                        <span class="tag is-light">of {{ total_topics }} completed</span>
+            <div class="column is-narrow">
+                <div class="field is-grouped">
+                    <div class="control">
+                        <div class="tags are-large">
+                            <span class="tag is-success">{{ completed_topics }}</span>
+                            <span class="tag is-light">of {{ total_topics }} completed</span>
+                        </div>
                     </div>
+                    {% if streak_info.current_streak > 0 %}
+                    <div class="control">
+                        <div class="tags are-large">
+                            <span class="tag is-warning">
+                                <i class="fas fa-fire"></i>&nbsp;{{ streak_info.current_streak }}
+                            </span>
+                            <span class="tag is-light">day streak</span>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -83,7 +91,10 @@
                                 </span>
                             </div>
                             <div class="media-content">
-                                <p class="title is-5">{{ topic.title }}</p>
+                                <p class="title is-5">
+                                    <span class="tag is-primary is-medium mr-2">{{ loop.index }}</span>
+                                    {{ topic.title }}
+                                </p>
                                 <p class="subtitle is-6">
                                     <span class="tag is-light">
                                         {{ "★" * topic.difficulty }}{{ "☆" * (5 - topic.difficulty) }}

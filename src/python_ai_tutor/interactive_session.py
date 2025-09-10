@@ -375,7 +375,47 @@ class InteractiveLearningSession:
     
     def _validate_pattern_match(self, user_code: str, requirements: dict) -> tuple[bool, str]:
         """Validate using flexible pattern matching."""
+        import re
+        
+        # Check for pattern in the code itself
+        if "pattern" in requirements:
+            pattern = requirements["pattern"]
+            if not re.search(pattern, user_code):
+                return False, "❌ Your code doesn't use the required swapping pattern (a, b = b, a)"
+        
+        # Check for minimum number of variables
+        if "min_variables" in requirements:
+            # Count variable assignments in the code
+            import ast
+            try:
+                tree = ast.parse(user_code)
+                variables = set()
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Assign):
+                        for target in node.targets:
+                            if isinstance(target, ast.Name):
+                                variables.add(target.id)
+                            elif isinstance(target, ast.Tuple):
+                                for elt in target.elts:
+                                    if isinstance(elt, ast.Name):
+                                        variables.add(elt.id)
+                
+                if len(variables) < requirements["min_variables"]:
+                    return False, f"❌ You need at least {requirements['min_variables']} variables"
+            except:
+                pass  # Continue with other checks
+        
+        # Check if multiple assignment is used
+        if requirements.get("uses_multiple_assignment"):
+            # Check for tuple assignment pattern (a, b = ...)
+            if not re.search(r'\w+\s*,\s*\w+\s*=', user_code):
+                return False, "❌ Use Python's multiple assignment feature (a, b = b, a)"
+        
+        # Execute and check output if needed
         result = self.code_executor.execute_code(user_code)
+        if not result.success:
+            return False, f"❌ Code error: {result.stderr}"
+        
         output = result.stdout.strip()
         
         # Check if output contains required patterns
@@ -386,12 +426,11 @@ class InteractiveLearningSession:
         
         # Check if output matches regex patterns
         if "regex_patterns" in requirements:
-            import re
             for pattern in requirements["regex_patterns"]:
                 if not re.search(pattern, output):
                     return False, f"❌ Output doesn't match expected pattern"
         
-        return True, "🎉 Great! Your output matches the expected format!"
+        return True, "🎉 Perfect! You've successfully swapped the variables using Python's elegant multiple assignment!"
     
     def _validate_custom(self, user_code: str, requirements: dict) -> tuple[bool, str]:
         """Custom validation hook for special cases."""

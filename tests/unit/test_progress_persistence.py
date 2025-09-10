@@ -22,7 +22,34 @@ class TestProgressPersistence:
     
     def teardown_method(self):
         """Clean up test database after each test."""
-        Path(self.temp_db.name).unlink(missing_ok=True)
+        # Properly close SQLite connections before file deletion
+        if hasattr(self, 'persistence'):
+            self.persistence.close()
+        
+        # Longer delay to ensure Windows releases file handles
+        import time
+        time.sleep(0.3)
+        
+        # Attempt file deletion with retries for Windows  
+        import os
+        temp_path = Path(self.temp_db.name)
+        for attempt in range(5):  # More attempts
+            try:
+                if temp_path.exists():
+                    temp_path.unlink()
+                break
+            except (PermissionError, OSError):
+                if attempt < 4:  # Try again
+                    time.sleep(0.2)  # Longer delays
+                else:
+                    # Final attempt - aggressive cleanup
+                    import gc
+                    gc.collect()
+                    time.sleep(0.5)
+                    try:
+                        temp_path.unlink(missing_ok=True)
+                    except:
+                        pass  # Give up gracefully
     
     def test_database_initialization(self):
         """Should create database tables on initialization."""

@@ -8,7 +8,14 @@
       "Bash(python:*)",
       "Bash(pip show:*)",
       "Bash(where code)",
-      "Bash(code --version)"
+      "Bash(code --version)",
+      "Bash(find:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(grep:*)",
+      "Bash(done)",
+      "WebFetch(domain:www.w3schools.com)",
+      "WebFetch(domain:www.geeksforgeeks.org)"
     ],
     "deny": [],
     "ask": []

@@ -6,16 +6,18 @@
   "estimated_time": 20,
   "levels": {
     "0": {
-      "type": "concept",
-      "content": "Variables store values for later use. Think of them as labeled boxes that hold data.",
-      "pseudocode": "variable_name = value"
+      "type": "concept", 
+      "content": "Variables store values for later use. Think of them as labeled boxes that hold data.\n\nOnce you have variables, you can see what's inside them using the print() function. For example: print(name, age) will display both variables.",
+      "pseudocode": "variable_name = value\nprint(variable_name)",
+      "key_concepts": ["variables store values", "print() displays variables", "assignment with ="]
     },
     "1": {
       "type": "simple_example",
-      "content": "Basic variable assignment and usage",
-      "code": "age = 25\nname = \"Alice\"\nprint(f\"Hello {name}, you are {age} years old\")",
-      "output": "Hello Alice, you are 25 years old",
-      "explanation": "We create two variables: 'age' stores a number, 'name' stores text. Then we print both using an f-string."
+      "content": "Basic variable assignment and printing",
+      "code": "age = 25\nname = \"Alice\"\nprint(\"Name:\", name)\nprint(\"Age:\", age)\nprint(name, \"is\", age, \"years old\")",
+      "output": "Name: Alice\nAge: 25\nAlice is 25 years old",
+      "explanation": "We create two variables: 'age' stores a number, 'name' stores text. The print() function can display variables in different ways - separately or together with text.",
+      "key_concepts": ["variable creation", "basic print usage", "string and number types"]
     },
     "2": {
       "type": "medium_example",
@@ -37,18 +39,18 @@
   "challenges": [
     {
       "prompt": "Create variables for your name, age, and favorite color, then print them in a sentence.",
-      "solution": "name = \"Alice\"\nage = 25\ncolor = \"blue\"\nprint(f\"My name is {name}, I am {age} years old, and my favorite color is {color}.\")",
+      "solution": "name = \"Alice\"\nage = 25\ncolor = \"blue\"\nprint(\"My name is\", name, \"and I am\", age, \"years old. My favorite color is\", color)",
       "hints": [
         "Use quotes for text (strings)",
         "Numbers don't need quotes",
-        "Use f-strings for easy formatting: f\"text {variable}\""
+        "Use print() with multiple values: print(\"text\", variable, \"more text\")"
       ],
       "difficulty": 1,
       "validation_type": "code_structure",
       "requirements": {
         "variables_required": ["name", "age", "color"],
         "uses_print": true,
-        "uses_f_string": true
+        "uses_f_string": false
       }
     },
     {
@@ -59,11 +61,43 @@
         "Use the pattern: a, b = b, a"
       ],
       "difficulty": 2,
+      "validation_type": "pattern_match",
+      "requirements": {
+        "min_variables": 2,
+        "uses_print": false,
+        "uses_multiple_assignment": true,
+        "pattern": "\\w+\\s*,\\s*\\w+\\s*=\\s*\\w+\\s*,\\s*\\w+"
+      }
+    },
+    {
+      "prompt": "Create a score variable with value 75, then add 15 points bonus and print the result with a message.",
+      "solution": "score = 75\nprint(\"Original score:\", score)\nscore = score + 15\nprint(\"Final score after bonus:\", score)",
+      "hints": [
+        "Start with score = 75",
+        "Use score = score + 15 to add the bonus",
+        "Print messages with the variable values"
+      ],
+      "difficulty": 2,
       "validation_type": "code_structure",
       "requirements": {
-        "variables_required": ["x", "y"],
+        "variables_required": ["score"],
         "uses_print": true,
-        "uses_multiple_assignment": true
+        "uses_f_string": false
+      }
+    },
+    {
+      "prompt": "Use chain assignment to create three variables (first, second, third) all equal to 100, then print all three.",
+      "solution": "first = second = third = 100\nprint(\"All values:\", first, second, third)",
+      "hints": [
+        "Chain assignment uses: var1 = var2 = var3 = value",
+        "Print all three variables in one statement"
+      ],
+      "difficulty": 3,
+      "validation_type": "code_structure",
+      "requirements": {
+        "variables_required": ["first", "second", "third"],
+        "uses_print": true,
+        "uses_f_string": false
       }
     }
   ]

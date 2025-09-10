@@ -57,6 +57,36 @@
                         </div>
                     </div>
                     
+                    <!-- Key concepts for current level -->
+                    {% if current_level_content.key_concepts %}
+                    <div class="field">
+                        <label class="label">Key Concepts</label>
+                        <div class="tags are-small">
+                            {% for concept in current_level_content.key_concepts %}
+                            <span class="tag is-primary is-light">{{ concept }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Fallback content for debugging/when no key concepts -->
+                    <div class="field">
+                        <label class="label">Learning Focus</label>
+                        <div class="content is-small">
+                            <p class="has-text-grey">
+                                {% if current_level_content.type.value == "concept" %}
+                                📖 Understanding core concepts
+                                {% elif current_level_content.type.value == "simple_example" %}
+                                💡 Learning through examples
+                                {% elif current_level_content.type.value == "medium_example" %}
+                                🔧 Building skills step by step  
+                                {% else %}
+                                ⚡ Advanced concepts and practice
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     <hr>
                     
                     <!-- Quick actions -->
@@ -137,19 +167,25 @@
                     
                     {% if current_level_content.explanation %}
                     <!-- Explanation -->
-                    <div class="content">
-                        <h4 class="title is-5">💡 Explanation</h4>
-                        <p>{{ current_level_content.explanation }}</p>
+                    <div class="notification is-info is-light mt-4">
+                        <h5 class="title is-6 has-text-info">
+                            <i class="fas fa-lightbulb"></i>&nbsp;Deep Dive
+                        </h5>
+                        <div class="content">
+                            <p class="mb-0">{{ current_level_content.explanation }}</p>
+                        </div>
                     </div>
                     {% endif %}
                     
                     {% if current_level_content.key_concepts %}
                     <!-- Key concepts -->
-                    <div class="content">
-                        <h4 class="title is-5">🔑 Key Concepts</h4>
+                    <div class="box has-background-light mt-4">
+                        <h5 class="title is-6 has-text-primary">
+                            <i class="fas fa-key"></i>&nbsp;Key Concepts
+                        </h5>
                         <div class="tags">
                             {% for concept in current_level_content.key_concepts %}
-                            <span class="tag is-primary is-light">{{ concept }}</span>
+                            <span class="tag is-primary">{{ concept }}</span>
                             {% endfor %}
                         </div>
                     </div>
@@ -281,6 +317,9 @@ function showHints(challengeIndex) {
     }
 }
 
+// Track attempt counts for psychological context
+const challengeAttempts = {};
+
 function submitChallenge(challengeIndex) {
     const code = document.getElementById(`challenge-code-${challengeIndex}`).value;
     const feedbackDiv = document.getElementById(`challenge-feedback-${challengeIndex}`);
@@ -289,6 +328,10 @@ function submitChallenge(challengeIndex) {
         showFeedback(feedbackDiv, false, 'Please write some code first!');
         return;
     }
+    
+    // Track attempt count for this challenge
+    const challengeKey = `${currentTopic}_${challengeIndex}`;
+    challengeAttempts[challengeKey] = (challengeAttempts[challengeKey] || 0) + 1;
     
     // Send challenge for validation
     fetch('/validate_challenge', {
@@ -299,7 +342,8 @@ function submitChallenge(challengeIndex) {
         body: JSON.stringify({
             topic_id: currentTopic,
             challenge_index: challengeIndex,
-            code: code
+            code: code,
+            attempt_count: challengeAttempts[challengeKey]
         })
     })
     .then(response => response.json())
@@ -307,6 +351,19 @@ function submitChallenge(challengeIndex) {
         showFeedback(feedbackDiv, data.success, data.message);
         if (data.success) {
             updateProgress(currentTopic, currentLevel, 1.0);
+            
+            // Reset attempt count for this challenge on success
+            challengeAttempts[challengeKey] = 0;
+            
+            // Show streak celebration if present
+            if (data.streak_celebration) {
+                showNotification(data.streak_celebration, 'success', 8000);
+            }
+            
+            // Show challenge celebration if present
+            if (data.celebration) {
+                showNotification(data.celebration, 'success', 6000);
+            }
         }
     })
     .catch(error => {

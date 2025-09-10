@@ -164,6 +164,11 @@ function updateProgress(topicId, level, score = 1.0, timeSpent = 0) {
     .then(data => {
         if (data.success) {
             console.log('Progress saved successfully');
+            
+            // Show celebration message for streak milestones
+            if (data.celebration) {
+                showNotification(data.celebration, 'success', 8000);
+            }
         } else {
             console.error('Failed to save progress:', data.message);
         }

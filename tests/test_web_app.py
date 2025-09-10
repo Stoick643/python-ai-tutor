@@ -39,11 +39,33 @@ class TestWebApp(unittest.TestCase):
     def tearDown(self):
         """Clean up after each test."""
         self.app_context.pop()
-        # Clean up temp database
-        try:
-            Path(self.temp_db.name).unlink(missing_ok=True)
-        except:
-            pass  # Ignore cleanup errors
+        
+        # Properly close SQLite connections before file deletion
+        if hasattr(self.app, 'curriculum_engine') and self.app.curriculum_engine:
+            self.app.curriculum_engine.progress_persistence.close()
+        
+        # Clean up temp database with retries for Windows
+        import time
+        import gc
+        
+        time.sleep(0.1)  # Small delay for Windows
+        temp_path = Path(self.temp_db.name)
+        
+        for attempt in range(3):
+            try:
+                if temp_path.exists():
+                    temp_path.unlink()
+                break
+            except (PermissionError, OSError):
+                if attempt < 2:
+                    time.sleep(0.1)
+                else:
+                    gc.collect()
+                    time.sleep(0.2)
+                    try:
+                        temp_path.unlink(missing_ok=True)
+                    except:
+                        pass  # Give up gracefully
 
     def test_home_page_loads(self):
         """GET / returns 200 and contains Start Learning."""
@@ -64,7 +86,7 @@ class TestWebApp(unittest.TestCase):
         self.assertIn(b'Learning Dashboard', response.data)
         self.assertIn(b'Variables', response.data)  # Should show some topics
 
-    @patch('app.current_app')
+    @patch('routes.learning.current_app')
     def test_learn_topic_renders_content(self, mock_app):
         """Topic page shows correct content from JSON file."""
         # Mock curriculum engine
@@ -116,13 +138,13 @@ class TestWebApp(unittest.TestCase):
 
     def test_challenge_validation_pass(self):
         """Correct solution returns success response."""
-        # Mock challenge validation
-        with patch('routes.learning.InteractiveLearningSession') as mock_session:
+        # Mock challenge validation (patch the import inside the function)
+        with patch('python_ai_tutor.interactive_session.InteractiveLearningSession') as mock_session:
             mock_instance = mock_session.return_value
             mock_instance._validate_challenge_solution.return_value = (True, "Great job!")
             
             # Mock curriculum engine
-            with patch('app.current_app') as mock_app:
+            with patch('routes.learning.current_app') as mock_app:
                 mock_topic = MagicMock()
                 mock_topic.challenges = [MagicMock()]
                 mock_app.curriculum_engine.load_topic.return_value = mock_topic
@@ -142,12 +164,12 @@ class TestWebApp(unittest.TestCase):
     def test_challenge_validation_fail(self):
         """Wrong solution returns helpful error message."""
         # Mock challenge validation failure
-        with patch('routes.learning.InteractiveLearningSession') as mock_session:
+        with patch('python_ai_tutor.interactive_session.InteractiveLearningSession') as mock_session:
             mock_instance = mock_session.return_value
             mock_instance._validate_challenge_solution.return_value = (False, "Try again!")
             
             # Mock curriculum engine
-            with patch('app.current_app') as mock_app:
+            with patch('routes.learning.current_app') as mock_app:
                 mock_topic = MagicMock()
                 mock_topic.challenges = [MagicMock()]
                 mock_app.curriculum_engine.load_topic.return_value = mock_topic
@@ -165,7 +187,7 @@ class TestWebApp(unittest.TestCase):
                 self.assertFalse(data['success'])
                 self.assertIn('message', data)
 
-    @patch('app.current_app')
+    @patch('routes.learning.current_app')
     def test_progress_persistence(self):
         """Progress saves to SQLite and persists across sessions."""
         mock_app = current_app
@@ -245,7 +267,7 @@ print("Malicious code executed")
     def test_api_topic_content_endpoint(self):
         """API returns specific topic content."""
         # This test requires actual curriculum files or mocking
-        with patch('app.current_app') as mock_app:
+        with patch('routes.learning.current_app') as mock_app:
             mock_topic = MagicMock()
             mock_topic.id = 'variables'
             mock_topic.title = 'Variables'
@@ -261,7 +283,7 @@ print("Malicious code executed")
 
     def test_progress_api_endpoint(self):
         """Progress API returns user progress data."""
-        with patch('app.current_app') as mock_app:
+        with patch('routes.learning.current_app') as mock_app:
             mock_progress = MagicMock()
             mock_progress.user_id = 'test_user'
             mock_progress.topics = {}

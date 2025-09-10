@@ -101,6 +101,33 @@ class TestContentLoader:
 
 class TestCurriculumEngine:
     """Test the CurriculumEngine class using TDD."""
+    
+    def _cleanup_temp_db(self, temp_db_path: str):
+        """Helper method to properly cleanup temporary database files on Windows."""
+        import time
+        import gc
+        
+        # Small delay to ensure Windows releases file handles
+        time.sleep(0.1)
+        
+        # Attempt file deletion with retries for Windows
+        temp_path = Path(temp_db_path)
+        for attempt in range(3):
+            try:
+                if temp_path.exists():
+                    temp_path.unlink()
+                break
+            except (PermissionError, OSError):
+                if attempt < 2:  # Try again
+                    time.sleep(0.1)
+                else:
+                    # Final attempt - force garbage collection and try once more
+                    gc.collect()
+                    time.sleep(0.2)
+                    try:
+                        temp_path.unlink(missing_ok=True)
+                    except:
+                        pass  # Give up gracefully
 
     def test_initialization(self):
         """Should initialize with content path and progress database."""
@@ -287,15 +314,17 @@ class TestCurriculumEngine:
         
         engine = CurriculumEngine(progress_db_path=temp_db_path)
         
-        # Act: Load progress for new user
-        progress = engine.load_user_progress("new_user")
-        
-        # Assert: Should return empty progress
-        assert progress.user_id == "new_user"
-        assert progress.topics == {}
-        
-        # Cleanup
-        Path(temp_db_path).unlink(missing_ok=True)
+        try:
+            # Act: Load progress for new user
+            progress = engine.load_user_progress("new_user")
+            
+            # Assert: Should return empty progress
+            assert progress.user_id == "new_user"
+            assert progress.topics == {}
+        finally:
+            # Proper cleanup with connection closing
+            engine.progress_persistence.close()
+            self._cleanup_temp_db(temp_db_path)
 
     def test_update_topic_progress_integration(self):
         """Should update topic progress and persist to database."""
@@ -305,21 +334,23 @@ class TestCurriculumEngine:
         
         engine = CurriculumEngine(progress_db_path=temp_db_path)
         
-        # Act: Update topic progress
-        engine.update_topic_progress("test_user", "variables", 2)
-        
-        # Load and verify
-        progress = engine.load_user_progress("test_user")
-        
-        # Assert: Progress should be persisted
-        assert "variables" in progress.topics
-        topic_progress = progress.topics["variables"]
-        assert topic_progress.current_level == 2
-        assert 2 in topic_progress.completed_levels
-        assert topic_progress.last_accessed is not None
-        
-        # Cleanup
-        Path(temp_db_path).unlink(missing_ok=True)
+        try:
+            # Act: Update topic progress
+            engine.update_topic_progress("test_user", "variables", 2)
+            
+            # Load and verify
+            progress = engine.load_user_progress("test_user")
+            
+            # Assert: Progress should be persisted
+            assert "variables" in progress.topics
+            topic_progress = progress.topics["variables"]
+            assert topic_progress.current_level == 2
+            assert 2 in topic_progress.completed_levels
+            assert topic_progress.last_accessed is not None
+        finally:
+            # Proper cleanup with connection closing
+            engine.progress_persistence.close()
+            self._cleanup_temp_db(temp_db_path)
 
     def test_get_user_stats_integration(self):
         """Should get user statistics from database."""
@@ -328,16 +359,19 @@ class TestCurriculumEngine:
             temp_db_path = temp_db.name
         
         engine = CurriculumEngine(progress_db_path=temp_db_path)
-        engine.update_topic_progress("test_user", "variables", 3)
-        engine.update_topic_progress("test_user", "functions", 1)
         
-        # Act: Get stats
-        stats = engine.get_user_stats("test_user")
-        
-        # Assert: Stats should be calculated
-        assert stats["total_topics"] == 2
-        assert stats["completed_topics"] == 1  # Only variables completed (level 3)
-        assert isinstance(stats["completion_rate"], float)
-        
-        # Cleanup
-        Path(temp_db_path).unlink(missing_ok=True)
+        try:
+            engine.update_topic_progress("test_user", "variables", 3)
+            engine.update_topic_progress("test_user", "functions", 1)
+            
+            # Act: Get stats
+            stats = engine.get_user_stats("test_user")
+            
+            # Assert: Stats should be calculated
+            assert stats["total_topics"] == 2
+            assert stats["completed_topics"] == 1  # Only variables completed (level 3)
+            assert isinstance(stats["completion_rate"], float)
+        finally:
+            # Proper cleanup with connection closing
+            engine.progress_persistence.close()
+            self._cleanup_temp_db(temp_db_path)
